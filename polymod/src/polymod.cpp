@@ -194,7 +194,7 @@ PYBIND11_MODULE(polymod, m) {
         >>> p 
         0 (no modulus) [Rank 10]
         )pbdoc")
-        .def(py::init<int>([](std::optional<int> rank, 
+        .def(py::init([](std::optional<int> rank, 
                               std::optional<int> modulus, 
                               std::optional<std::vector<int>> coeffs,
                               std::optional<std::string> equation) {
@@ -203,25 +203,32 @@ PYBIND11_MODULE(polymod, m) {
                 throw py::value_error("Cannot provided both coefficients and equation.");
             }
 
+            int N = (rank.has_value()) ? *rank : 10;
+            int q = (modulus.has_value()) ? *modulus : 10;
+            std::vector<int> vals;
+            if (coeffs.has_value()) vals = *coeffs;
+            std::string eq;
+            if (equation.has_value()) eq = *equation;
+
             if (modulus.has_value()) {
                 if (equation.has_value()) {
-                    return new ConvolutionPoly(rank, modulus, equation);
+                    return new ConvolutionPoly(N, q, eq);
                 } else if (coeffs.has_value()) {
-                    return new ConvolutionPoly(rank, modulus, coeffs);
+                    return new ConvolutionPoly(N, q, vals);
                 } else {
-                    return new ConvolutionPoly(rank, modulus);
+                    return new ConvolutionPoly(N, q);
                 }
             } else {
                 return new ConvolutionPoly(10);
             }
 
                              
-        })
-        py::arg("rank") = py::none()
+        }),
+        py::arg("rank") = py::none(),
         py::arg("modulus") = py::none(),
         py::arg("coeffs") = py::none(),
         py::arg("equation") = py::none()
-        );
+        )
         .def_property_readonly("coeffs", &ConvolutionPoly::get_coeffs)
         .def_property_readonly("N", &ConvolutionPoly::get_N)
         .def_property_readonly("q", &ConvolutionPoly::get_q)
