@@ -2,7 +2,6 @@ from polymod import ConvolutionPoly
 from math import gcd
 
 
-
 class NTRU:
     def __init__(self):
         self.N = 7
@@ -18,12 +17,29 @@ class NTRU:
             print('Parameter warning:\n     q <= (6d+1)p.\nWill proceed.')
 
     def createKeys(self):
-        # print(self.N)
-        f = ConvolutionPoly(rank=self.N, modulus=self.p, coeffs=[-1, 0, 1, 1, -1, 0, 1, 1])
-        # g = ConvolutionPoly(rank=self.N, modulus=self.p, coeffs=[0, -1, -1, 0, 1, 0, 1])
+        f = ConvolutionPoly(rank=self.N, coeffs=[-1, 0, 1, 1, -1, 0, 1])
+        g = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=[0, -1, -1, 0, 1, 0, 1])
 
-        print(f)
-        print(f.coeffs)
+        if f.coeffs.count(1) != self.d+1 or f.coeffs.count(-1) != self.d:
+            print(f'Parameter error:\n     f has an incorrect number of 1 and -1 coefficients: should be {self.d+1} 1s and {self.d} -1s, is {f.coeffs.count(1)} 1s and {f.coeffs.count(-1)} -1s.')
+            exit()
+        
+        if g.coeffs.count(1) != self.d or g.coeffs.count(-1) != self.d:
+            print(f'Parameter error:\n     g has an incorrect number of 1 and -1 coefficients: should be {self.d} 1s and {self.d} -1s, is {g.coeffs.count(1)} 1s and {g.coeffs.count(-1)} -1s.')
+            exit()
+        
+        
+        f.set_modulus(self.q)
+        # f_p = f.set_modulus(self.p)
+
+        F_q = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=[37, 2, 40, 21, 32, 26, 8]) # Should be inverse of f_q, hard-coded for now
+        # F_p = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=[1, 1, 1, 1, 0, 1, 1]) # Should be inverse of f_p
+
+        # Multiplying to check is unhappy bc "Values provided must match specified polynomial degree."
+        # print(F_q * f) # checking bc should be id
+
+        h = F_q * g # I got a segmentation fault, I am so sorry
+        print(h)
 
 
 def main():
