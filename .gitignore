@@ -2,3 +2,5 @@ build/
 *.egg-info
 docs/
 *.DS_Store
+.venv
+.vscode
