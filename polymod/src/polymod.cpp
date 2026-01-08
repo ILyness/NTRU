@@ -73,17 +73,14 @@ class ConvolutionPoly {
         }
 
     public:
-        ConvolutionPoly(int degreeMod) : N(degreeMod) {
-            q = 0;
-            coeffs = std::vector<int>(degreeMod+1, 0);
-        };
+        ConvolutionPoly(int degreeMod) : N(degreeMod), q(0), coeffs(degreeMod, 0) {};
         ConvolutionPoly(int degreeMod, int coeffMod) : N(degreeMod), q(coeffMod) {
             if (q < 0) throw std::invalid_argument("Coefficient modulus q must be positive.");
-            coeffs = std::vector<int>(degreeMod+1, 0);
+            coeffs = std::vector<int>(degreeMod, 0);
         };
         ConvolutionPoly(int degreeMod, int coeffMod, const std::vector<int>& vals) : N(degreeMod), q(coeffMod), coeffs(vals) {
             if (q < 0) throw std::invalid_argument("Coefficient modulus q must be positive.");
-            if (degreeMod+1 != vals.size()) throw std::invalid_argument("Values provided must match specified polynomial degree.");
+            if (degreeMod != vals.size()) throw std::invalid_argument("Values provided must match specified polynomial degree.");
             modCoefficients();
         };
         ConvolutionPoly(int degreeMod, int coeffMod, const std::string& equation) : N(degreeMod), q(coeffMod) {
@@ -110,7 +107,7 @@ class ConvolutionPoly {
                 if (i > 1) ss << '^' << i; 
                 first = false; 
             }
-            if (q) ss << "(modulo " << q << ") "; else ss << "(no modulus) ";
+            if (q) ss << " (modulo " << q << ") "; else ss << "(no modulus) ";
             ss << "[Rank " << N << ']';
             if (first) return "0";
             return ss.str();
@@ -204,7 +201,7 @@ PYBIND11_MODULE(polymod, m) {
             }
 
             int N = (rank.has_value()) ? *rank : 10;
-            int q = (modulus.has_value()) ? *modulus : 10;
+            int q = (modulus.has_value()) ? *modulus : 0;
             std::vector<int> vals;
             if (coeffs.has_value()) vals = *coeffs;
             std::string eq;
@@ -219,10 +216,11 @@ PYBIND11_MODULE(polymod, m) {
                     return new ConvolutionPoly(N, q);
                 }
             } else {
+                if (coeffs.has_value()) {
+                    return new ConvolutionPoly(N, q, vals);
+                }
                 return new ConvolutionPoly(10);
-            }
-
-                             
+            }                   
         }),
         py::arg("rank") = py::none(),
         py::arg("modulus") = py::none(),
