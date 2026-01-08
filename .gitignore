@@ -1,4 +1,4 @@
-build/
+polymod/build/
 *.egg-info
-docs/
+docs/source/
 *.DS_Store
