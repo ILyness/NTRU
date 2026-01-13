@@ -122,8 +122,8 @@ class ConvolutionPoly {
         ConvolutionPoly operator+(const ConvolutionPoly& other) const {
             if (N != other.N) throw std::invalid_argument("Polynomial Ranks must match.");
             if (q != other.q) throw std::invalid_argument("Polynomial moduli must match.");
-            std::vector<int> result(N+1);
-            for (size_t i = 0; i < N+1; i++) {
+            std::vector<int> result(N);
+            for (size_t i = 0; i < N; i++) {
                 result[i] = coeffs[i] + other.coeffs[i];
             }
             return ConvolutionPoly(N, q, result);
@@ -132,10 +132,10 @@ class ConvolutionPoly {
         ConvolutionPoly operator*(const ConvolutionPoly& other) const {
             if (N != other.N) throw std::invalid_argument("Polynomial Ranks must match.");
             if (q != other.q) throw std::invalid_argument("Polynomial moduli must match.");
-            std::vector<int> result(N+1);
+            std::vector<int> result(N);
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < N; j++) {
-                    result[i+j % N] += coeffs[i] + other.coeffs[j];
+                    result[i+j % N] += coeffs[i] * other.coeffs[j];
                 }
             }
             return ConvolutionPoly(N, q, result);
@@ -162,7 +162,7 @@ PYBIND11_MODULE(polymod, m) {
             The rank of the ring the polynomial belongs to.
         modulus : int, optional
             The modulus of the coefficients for the polynomial. If 0 (the default), no modulus will be used.
-        coefficients : list of int, optional
+        coeffs : list of int, optional
             The coefficients for the polynomial in ascending degree. Must match the rank. If not in range, coefficients will
             be modified to fall in the center lift modulus if provided.
         equation : str, optional
