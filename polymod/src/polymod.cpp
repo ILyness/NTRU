@@ -82,7 +82,7 @@ class ConvolutionPoly {
             }
         }
 
-        std::pair<ConvolutionPoly> divide(const ConvolutionPoly& other) {
+        std::pair<ConvolutionPoly, ConvolutionPoly> divide(const ConvolutionPoly& other) {
             std::vector<int> multiple(N);
             std::vector<int> remainder = coeffs;
             int n = d;
@@ -100,7 +100,7 @@ class ConvolutionPoly {
                     }
                 }
             }
-            return std::pair<ConvolutionPoly>(ConvolutionPoly(N, q, multiple), ConvolutionPoly(N, q, remainder));
+            return std::pair<ConvolutionPoly, ConvolutionPoly>(ConvolutionPoly(N, q, multiple), ConvolutionPoly(N, q, remainder));
         }
 
     public:
@@ -269,6 +269,7 @@ PYBIND11_MODULE(polymod, m) {
         .def_property_readonly("coeffs", &ConvolutionPoly::get_coeffs)
         .def_property_readonly("N", &ConvolutionPoly::get_N)
         .def_property_readonly("q", &ConvolutionPoly::get_q)
+        .def_property_readonly("d", &ConvolutionPoly::get_d)
         .def("set_modulus", &ConvolutionPoly::setModulus, R"pbdoc(
             Update the modulus of the polynomial.
 
@@ -286,6 +287,24 @@ PYBIND11_MODULE(polymod, m) {
             ValueError
                 If ``q`` is negative.
             )pbdoc")
+        .def("get_coeff", &ConvolutionPoly::getCoeffAt, R"pbdoc(
+            Get coefficient of polynomial at specified index.
+
+            Parameters
+            ----------
+            i : int
+                Index of coefficient to access.
+
+            Returns
+            -------
+            int
+                Value at specified index.
+
+            Raises
+            ------
+            ValueError
+                If ``i`` is out of range.
+            )pbdoc", py::arg("i"))
         .def(py::self + py::self)
         .def(py::self * py::self)
         .def("__repr__", &ConvolutionPoly::toString);
