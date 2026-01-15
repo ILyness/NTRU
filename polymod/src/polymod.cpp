@@ -82,20 +82,26 @@ class ConvolutionPoly {
             }
         }
 
-        // IN PROGRESS
-        // std::pair<ConvolutionPoly> divide(const ConvolutionPoly& other) {
-        //     std::vector<int> multiple_coeffs(N);
-        //     std::vector<int> remainder_coeffs = coeffs;
-        //     int n = d;
-        //     int k = other.get_d();
-        //     int sign = other.get_leading();
-        //     while (n >= k) {
-        //         multiple_coeffs[n-k] = (coeffs[n] == sign) ? 1 : -1;
-        //         for (int i = 0; i < n; i++) {
-
-        //         }
-        //     }
-        // }
+        std::pair<ConvolutionPoly> divide(const ConvolutionPoly& other) {
+            std::vector<int> multiple(N);
+            std::vector<int> remainder = coeffs;
+            int n = d;
+            int k = other.get_d();
+            int l = other.getCoeffAt(k);
+            while (n >= k) {
+                int inv = 67; // FILL IN WITH EED FOR INTEGERS
+                multiple[n-k] = (l * inv) % q;
+                for (int i = 0; i < N; i++) {
+                    int idx = (N + i - (n - k)) % N;
+                    remainder[i] = getCenterModulus(remainder[i] - multiple[n-k] * other.getCoeffAt(idx));
+                    while (remainder[n] == 0) {
+                        n--;
+                        if (n < 0) break;
+                    }
+                }
+            }
+            return std::pair<ConvolutionPoly>(ConvolutionPoly(N, q, multiple), ConvolutionPoly(N, q, remainder));
+        }
 
     public:
         ConvolutionPoly(int degreeMod) : N(degreeMod), q(0), coeffs(degreeMod, 0), d(0) {};
@@ -120,7 +126,11 @@ class ConvolutionPoly {
         int get_N() const { return N; }
         int get_q() const { return q; }
         int get_d() const { return d; }
-        int get_leading() const { return coeffs[d]; }
+
+        int getCoeffAt(int i) const {
+            if (i >= N) throw std::invalid_argument("Index must be at most N.");
+            return coeffs[i];
+        }
 
         std::string toString() {
             std::stringstream ss;
