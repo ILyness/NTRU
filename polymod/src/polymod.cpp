@@ -16,6 +16,16 @@ class ConvolutionPoly {
         std::vector<int> coeffs;
         int N;
         int q;
+        int d;
+
+        void calculateDegree() {
+            for (int i = N-1; i >= 0; i--) {
+                if (coeffs[i]) {
+                    d = i;
+                    return;
+                }
+            }
+        }
 
         int getCenterModulus(int n) const {
             if (q == 0) return n;
@@ -72,8 +82,23 @@ class ConvolutionPoly {
             }
         }
 
+        // IN PROGRESS
+        // std::pair<ConvolutionPoly> divide(const ConvolutionPoly& other) {
+        //     std::vector<int> multiple_coeffs(N);
+        //     std::vector<int> remainder_coeffs = coeffs;
+        //     int n = d;
+        //     int k = other.get_d();
+        //     int sign = other.get_leading();
+        //     while (n >= k) {
+        //         multiple_coeffs[n-k] = (coeffs[n] == sign) ? 1 : -1;
+        //         for (int i = 0; i < n; i++) {
+
+        //         }
+        //     }
+        // }
+
     public:
-        ConvolutionPoly(int degreeMod) : N(degreeMod), q(0), coeffs(degreeMod, 0) {};
+        ConvolutionPoly(int degreeMod) : N(degreeMod), q(0), coeffs(degreeMod, 0), d(0) {};
         ConvolutionPoly(int degreeMod, int coeffMod) : N(degreeMod), q(coeffMod) {
             if (q < 0) throw std::invalid_argument("Coefficient modulus q must be positive.");
             coeffs = std::vector<int>(degreeMod, 0);
@@ -82,16 +107,20 @@ class ConvolutionPoly {
             if (q < 0) throw std::invalid_argument("Coefficient modulus q must be positive.");
             if (degreeMod != vals.size()) throw std::invalid_argument("Values provided must match specified polynomial degree.");
             modCoefficients();
+            calculateDegree();
         };
         ConvolutionPoly(int degreeMod, int coeffMod, const std::string& equation) : N(degreeMod), q(coeffMod) {
             if (q < 0) throw std::invalid_argument("Coefficient modulus q must be positive.");
             parseEquation(degreeMod, equation);
             modCoefficients(); 
+            calculateDegree();
         }
 
         std::vector<int> get_coeffs() const { return coeffs; }
         int get_N() const { return N; }
         int get_q() const { return q; }
+        int get_d() const { return d; }
+        int get_leading() const { return coeffs[d]; }
 
         std::string toString() {
             std::stringstream ss;
