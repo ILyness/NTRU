@@ -216,6 +216,8 @@ PYBIND11_MODULE(polymod, m) {
             The rank of the polynomial.
         q : int
             The modulus of the polynomial. If 0 (default), no modulus is used.
+        d : int
+            The degree of the polynomial.
 
         Notes
         -----
