@@ -82,25 +82,80 @@ class ConvolutionPoly {
             }
         }
 
+        std::vector<int> integerGetQuotients(int dividend, int divisor) {
+            int quotient = dividend / divisor;
+            int remainder = dividend % divisor;
+            std::vector<int> quotients;
+            
+            if (remainder == 0) {
+                if (divisor != 1) std::invalid_argument("Must be coprime.");
+                return quotients;
+            }
+
+            quotients = integerGetQuotients(divisor, remainder);
+            quotients.push_back(quotient);
+            return quotients;
+        }
+
+        int coefficientInverse(int to_invert) {
+            if (to_invert < 0) {
+                to_invert += q;
+            }
+            std::vector<int> quotients = integerGetQuotients(q, to_invert);
+
+            int large_num_coef = 0;
+            int small_num_coef = 1;
+            int temp;
+            
+            for (size_t i = 0; i < quotients.size(); i++) {
+                temp = large_num_coef;
+                large_num_coef = small_num_coef;
+                small_num_coef = temp - (quotients[i]*small_num_coef);
+            }
+            return small_num_coef;
+        }
+
         std::pair<ConvolutionPoly, ConvolutionPoly> divide(const ConvolutionPoly& other) {
             std::vector<int> multiple(N);
             std::vector<int> remainder = coeffs;
-            int n = d;
+            int n = get_d();
             int k = other.get_d();
             int l = other.getCoeffAt(k);
+            int inv;
+            int idx;
             while (n >= k) {
-                int inv = 67; // FILL IN WITH EED FOR INTEGERS
+                inv = coefficientInverse(coeffs[n]);
                 multiple[n-k] = (l * inv) % q;
                 for (int i = 0; i < N; i++) {
-                    int idx = (N + i - (n - k)) % N;
+                    idx = (N + i - (n - k)) % N;
                     remainder[i] = getCenterModulus(remainder[i] - multiple[n-k] * other.getCoeffAt(idx));
-                    while (remainder[n] == 0) {
+                    while (remainder[n] == 0 || coeffs[n] == 0) {
                         n--;
                         if (n < 0) break;
                     }
                 }
             }
             return std::pair<ConvolutionPoly, ConvolutionPoly>(ConvolutionPoly(N, q, multiple), ConvolutionPoly(N, q, remainder));
+        }
+
+        std::pair<int, std::vector<ConvolutionPoly>> getQuotients(ConvolutionPoly dividend, ConvolutionPoly divisor) {
+            std::pair<ConvolutionPoly, ConvolutionPoly> divided = dividend.divide(divisor);
+            ConvolutionPoly quotient = divided.first;
+            ConvolutionPoly remainder = divided.second;
+
+            std::vector<ConvolutionPoly> quotients;
+            std::vector<int> zeros(remainder.N, 0);
+
+            if (remainder.coeffs == zeros) {
+                for (size_t i = 1; i < N; i++) {
+                    if (divisor.coeffs[i] != 0) throw std::invalid_argument("Polynomial has no inverse.");
+                }
+                return std::pair<int, std::vector<ConvolutionPoly>>(divisor.coeffs[0], quotients);
+            }
+
+            std::pair<int, std::vector<ConvolutionPoly>> quotients_info = getQuotients(divisor, remainder);
+            quotients_info.second.push_back(quotient);
+            return quotients_info;
         }
 
     public:
@@ -158,12 +213,62 @@ class ConvolutionPoly {
             modCoefficients();
         }
 
+        ConvolutionPoly inverse() {
+            N++;
+            coeffs.push_back(0);
+
+            std::vector<int> mod_coeffs(N, 0);
+            mod_coeffs[0] = -1;
+            mod_coeffs[N-1] = 1;
+            ConvolutionPoly mod_poly = ConvolutionPoly(N, q, mod_coeffs);
+
+            std::pair<int, std::vector<ConvolutionPoly>> quotient_info = getQuotients(mod_poly, *this);
+            int end_coef = coefficientInverse(quotient_info.first);
+            std::vector<ConvolutionPoly> quotients = quotient_info.second;
+
+            N--;
+            coeffs.pop_back();
+            
+            std::vector<int> all_zeros(N, 0);
+            std::vector<int> one_then_zeros(N, 0);
+            one_then_zeros[0] = 1;
+
+            ConvolutionPoly large_poly_coef = ConvolutionPoly(N, q, all_zeros);
+            ConvolutionPoly small_poly_coef = ConvolutionPoly(N, q, one_then_zeros);
+
+            for (size_t i = 0; i < quotients.size(); i++) {
+                ConvolutionPoly curr_quotient = quotients[i];
+                curr_quotient.N--;
+                curr_quotient.coeffs.pop_back();
+
+                ConvolutionPoly temp = large_poly_coef;
+                large_poly_coef = small_poly_coef;
+                small_poly_coef = temp - (curr_quotient * small_poly_coef);
+            }
+            
+            // for (size_t i = 0; i < N; i++) {
+            //     small_poly_coef.coeffs[i] = (small_poly_coef.coeffs[i] * end_coef) % q;
+            // }
+
+            return small_poly_coef;
+        }
+
         ConvolutionPoly operator+(const ConvolutionPoly& other) const {
             if (N != other.N) throw std::invalid_argument("Polynomial Ranks must match.");
             if (q != other.q) throw std::invalid_argument("Polynomial moduli must match.");
             std::vector<int> result(N);
             for (size_t i = 0; i < N; i++) {
                 result[i] = coeffs[i] + other.coeffs[i];
+            }
+            return ConvolutionPoly(N, q, result);
+        }
+
+        ConvolutionPoly operator-(const ConvolutionPoly& other) const {
+            if (N != other.N) throw std::invalid_argument("Polynomial Ranks must match.");
+            if (q != other.q) throw std::invalid_argument("Polynomial moduli must match.");
+            std::vector<int> result(N);
+            for (size_t i = 0; i < N; i++) {
+                result[i] = coeffs[i] - other.coeffs[i];
             }
             return ConvolutionPoly(N, q, result);
         }
@@ -307,6 +412,13 @@ PYBIND11_MODULE(polymod, m) {
             ValueError
                 If ``i`` is out of range.
             )pbdoc", py::arg("i"))
+        .def("inverse", &ConvolutionPoly::inverse, R"pbdoc(
+            Get the inverse of the polynomial.
+
+            Returns
+            -------
+            The inverse of the polynomial, if it exists. None otherwise.
+            )pbdoc")
         .def(py::self + py::self)
         .def(py::self * py::self)
         .def("__repr__", &ConvolutionPoly::toString);

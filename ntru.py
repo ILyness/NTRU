@@ -30,6 +30,9 @@ class NTRU:
         
         
         f.set_modulus(self.q)
+        # print(f.inverse())
+        print(f * f.inverse())
+        exit()
         # f_p = f.set_modulus(self.p)
 
         F_q = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=[37, 2, 40, 21, 32, 26, 8]) # Should be inverse of f_q, hard-coded for now
@@ -45,6 +48,7 @@ class NTRU:
 def main():
     ntru = NTRU()
     ntru.createKeys()
+    # invert(130)
 
 if __name__ == '__main__':
     main()
