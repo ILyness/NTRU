@@ -19,12 +19,13 @@ class ConvolutionPoly {
         int d;
 
         void calculateDegree() {
-            for (int i = N-1; i >= 0; i--) {
+            for (int i = N-1; i > 0; i--) {
                 if (coeffs[i]) {
                     d = i;
                     return;
                 }
             }
+            d = 0;
         }
 
         int getCenterModulus(int n) const {
@@ -101,13 +102,30 @@ class ConvolutionPoly {
             if (to_invert < 0) {
                 to_invert += q;
             }
-            std::vector<int> quotients = integerGetQuotients(q, to_invert);
+            
+            int dividend = q;
+            int divisor = to_invert;
+
+            int quotient;
+            int remainder = 1000;
+            std::vector<int> quotients;
+
+            while (remainder != 0) {
+                quotient = dividend / divisor;
+                remainder = dividend % divisor;
+
+                quotients.push_back(quotient);
+
+                dividend = divisor;
+                divisor = remainder;
+            }
+            if (dividend != 1) throw std::invalid_argument("Coefficient divisor and dividend must be coprime.");
 
             int large_num_coef = 0;
             int small_num_coef = 1;
             int temp;
             
-            for (size_t i = 0; i < quotients.size(); i++) {
+            for (size_t i = quotients.size()-1; i >= 0; i--) {
                 temp = large_num_coef;
                 large_num_coef = small_num_coef;
                 small_num_coef = temp - (quotients[i]*small_num_coef);
@@ -121,15 +139,14 @@ class ConvolutionPoly {
             int n = get_d();
             int k = other.get_d();
             int l = other.getCoeffAt(k);
-            int inv;
+            int inv = coefficientInverse(l);
             int idx;
             while (n >= k) {
-                inv = coefficientInverse(coeffs[n]);
-                multiple[n-k] = (l * inv) % q;
+                multiple[n-k] = (coeffs[n] * inv) % q;
                 for (int i = 0; i < N; i++) {
                     idx = (N + i - (n - k)) % N;
                     remainder[i] = getCenterModulus(remainder[i] - multiple[n-k] * other.getCoeffAt(idx));
-                    while (remainder[n] == 0 || coeffs[n] == 0) {
+                    while (remainder[n] == 0) {
                         n--;
                         if (n < 0) break;
                     }
