@@ -30,8 +30,9 @@ class NTRU:
         
         
         f.set_modulus(self.q)
-        # print(f.inverse())
-        print(f * f.inverse())
+        inverse = f.inverse()
+        print(inverse)
+        print(f * inverse)
         exit()
         # f_p = f.set_modulus(self.p)
 
