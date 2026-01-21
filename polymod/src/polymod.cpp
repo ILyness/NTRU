@@ -32,6 +32,7 @@ class ConvolutionPoly {
             if (q == 0) return n;
             int res = n % q;
             if (res > q/2) res -= q;
+            if (res <= -q/2) res += q;
             return res;
         }
 
@@ -244,25 +245,19 @@ class ConvolutionPoly {
             ConvolutionPoly mod_poly = ConvolutionPoly(N, q, mod_coeffs);
             
             std::pair<int, std::vector<ConvolutionPoly>> quotient_info = getQuotients(mod_poly, *this);
+            int coef_to_change_unit = getIntegerInverse(quotient_info.first);
+            std::vector<ConvolutionPoly> quotients = quotient_info.second;
 
             N--;
             coeffs.pop_back();
 
-            int coef_to_change_unit = getIntegerInverse(quotient_info.first);
-            std::vector<int> coef_coeffs(N, 0);
-            coef_coeffs[0] = coef_to_change_unit;
-            ConvolutionPoly coef_poly = ConvolutionPoly(N, q, coef_coeffs);
-
-            std::vector<ConvolutionPoly> quotients = quotient_info.second;
-            
             std::vector<int> all_zeros(N, 0);
-            std::vector<int> one_then_zeros(N, 0);
-            one_then_zeros[0] = 1;
-
             ConvolutionPoly large_poly_coef = ConvolutionPoly(N, q, all_zeros);
-            // ConvolutionPoly small_poly_coef = coef_poly;
-            ConvolutionPoly small_poly_coef = ConvolutionPoly(N, q, one_then_zeros);
-
+            
+            std::vector<int> small_poly_coef_coeffs(N, 0);
+            small_poly_coef_coeffs[0] = coef_to_change_unit;
+            ConvolutionPoly small_poly_coef = ConvolutionPoly(N, q, small_poly_coef_coeffs);
+            
             for (int i = quotients.size()-2; i >= 0; i--) {
                 ConvolutionPoly curr_quotient = quotients[i];
                 curr_quotient.N--;
@@ -273,7 +268,7 @@ class ConvolutionPoly {
                 small_poly_coef = temp - (curr_quotient * small_poly_coef);
             }
 
-            return small_poly_coef;// * coef_poly;
+            return small_poly_coef;
         }
 
         ConvolutionPoly operator+(const ConvolutionPoly& other) const {
@@ -302,7 +297,7 @@ class ConvolutionPoly {
             std::vector<int> result(N);
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < N; j++) {
-                    result[i+j % N] += coeffs[i] * other.coeffs[j];
+                    result[(i+j) % N] += coeffs[i] * other.coeffs[j];
                 }
             }
             return ConvolutionPoly(N, q, result);
