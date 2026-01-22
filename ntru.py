@@ -9,7 +9,6 @@ class NTRU:
         self.p = 3
         self.q = 41
         self.d = 2
-        self.h = None
 
         if gcd(self.N, self.q) != 1 or gcd(self.p, self.q) != 1:
             print('Parameter error: we must have:\n     gcd(p, q) = gcd(N, q) = 1.')
@@ -18,10 +17,8 @@ class NTRU:
         if self.q <= (6*self.d+1) * self.p:
             print('Parameter warning:\n     q <= (6d+1)p.\nWill proceed.')
 
-    def createKeys(self):
-        f_coeffs = [-1, 0, 1, 1, -1, 0, 1]
-        g_coeffs = [0, -1, -1, 0, 1, 0, 1]
 
+    def createKeys(self, f_coeffs, g_coeffs):
         if f_coeffs.count(1) != self.d+1 or f_coeffs.count(-1) != self.d:
             print(f'Parameter error:\n     f has an incorrect number of 1 and -1 coefficients: should be {self.d+1} 1s and {self.d} -1s, is {f_coeffs.coeffs.count(1)} 1s and {f_coeffs.coeffs.count(-1)} -1s.')
             exit()
@@ -35,18 +32,13 @@ class NTRU:
 
         try:
             self.f.inverse()
-        except:
-            return False
-        
-        self.f.set_modulus(self.q)
-
-        try:
+            self.f.set_modulus(self.q)
             F_q = self.f.inverse()
         except:
-            return False
+            print(f'Parameter error:\n     f is uninvertible in q or p.')
+            exit()
 
         self.h = F_q * self.g
-        return self.h
     
     def getRandomPolynomial(self):
         coefs = [1 for _ in range(self.d)] + [-1 for _ in range(self.d)] + [0 for _ in range(self.N - 2*self.d)]
@@ -54,7 +46,7 @@ class NTRU:
         return coefs
 
     def encryptMessage(self, m_coeffs):
-        m = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=[1, -1, 1, 1, 0, -1, 0])
+        m = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=m_coeffs)
 
         p_poly = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=[self.p] + [0 for _ in range(self.N-1)])
         r = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=self.getRandomPolynomial())
@@ -75,16 +67,18 @@ class NTRU:
         return m
 
 
-
 def main():
     ntru = NTRU()
-    h = ntru.createKeys()
+    f_coeffs = [-1, 0, 1, 1, -1, 0, 1]
+    g_coeffs = [0, -1, -1, 0, 1, 0, 1]
+    ntru.createKeys(f_coeffs, g_coeffs)
 
-    m_coeffs = [1, 1, 2, 2, 0, 0, 1]
+    m_coeffs = [1, -1, 1, 1, 0, -1, 0]
     e = ntru.encryptMessage(m_coeffs)
     m = ntru.decryptMessage(e)
-    print(m)
-    
+
+    print(m_coeffs)
+    print(m.coeffs)
 
 
 if __name__ == '__main__':
