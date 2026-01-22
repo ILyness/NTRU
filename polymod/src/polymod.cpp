@@ -32,7 +32,7 @@ class ConvolutionPoly {
             if (q == 0) return n;
             int res = n % q;
             if (res > q/2) res -= q;
-            if (res <= -q/2) res += q;
+            if (res < -q/2) res += q;
             return res;
         }
 

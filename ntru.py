@@ -19,24 +19,33 @@ class NTRU:
             print('Parameter warning:\n     q <= (6d+1)p.\nWill proceed.')
 
     def createKeys(self):
-        self.f = ConvolutionPoly(rank=self.N, coeffs=[-1, 0, 1, 1, -1, 0, 1])
-        self.g = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=[0, -1, -1, 0, 1, 0, 1])
+        f_coeffs = [-1, 0, 1, 1, -1, 0, 1]
+        g_coeffs = [0, -1, -1, 0, 1, 0, 1]
 
-        if self.f.coeffs.count(1) != self.d+1 or self.f.coeffs.count(-1) != self.d:
-            print(f'Parameter error:\n     f has an incorrect number of 1 and -1 coefficients: should be {self.d+1} 1s and {self.d} -1s, is {f.coeffs.count(1)} 1s and {f.coeffs.count(-1)} -1s.')
+        if f_coeffs.count(1) != self.d+1 or f_coeffs.count(-1) != self.d:
+            print(f'Parameter error:\n     f has an incorrect number of 1 and -1 coefficients: should be {self.d+1} 1s and {self.d} -1s, is {f_coeffs.coeffs.count(1)} 1s and {f_coeffs.coeffs.count(-1)} -1s.')
             exit()
         
-        if self.g.coeffs.count(1) != self.d or self.g.coeffs.count(-1) != self.d:
-            print(f'Parameter error:\n     g has an incorrect number of 1 and -1 coefficients: should be {self.d} 1s and {self.d} -1s, is {g.coeffs.count(1)} 1s and {g.coeffs.count(-1)} -1s.')
+        if g_coeffs.count(1) != self.d or g_coeffs.count(-1) != self.d:
+            print(f'Parameter error:\n     g has an incorrect number of 1 and -1 coefficients: should be {self.d} 1s and {self.d} -1s, is {g_coeffs.count(1)} 1s and {g_coeffs.count(-1)} -1s.')
             exit()
+
+        self.f = ConvolutionPoly(rank=self.N, modulus=self.p, coeffs=f_coeffs)
+        self.g = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=g_coeffs)
+
+        try:
+            self.f.inverse()
+        except:
+            return False
         
         self.f.set_modulus(self.q)
-        self.F_q = self.f.inverse()
 
-        self.f.set_modulus(self.p)
-        self.F_p = self.f.inverse()
+        try:
+            F_q = self.f.inverse()
+        except:
+            return False
 
-        self.h = self.F_q * self.g
+        self.h = F_q * self.g
         return self.h
     
     def getRandomPolynomial(self):
@@ -45,24 +54,25 @@ class NTRU:
         return coefs
 
     def encryptMessage(self, m_coeffs):
-        m = ConvolutionPoly(self.N, self.q, m)
-        r = self.getRandomPolynomial()
+        m = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=[1, -1, 1, 1, 0, -1, 0])
 
-        m.set_modulus(self.q)
+        p_poly = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=[self.p] + [0 for _ in range(self.N-1)])
+        r = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=self.getRandomPolynomial())
         self.h.set_modulus(self.q)
-        e = ConvolutionPoly(self.N, self.q, self.p*r) * self.h + m
+
+        e = p_poly * r * self.h + m
         
         return e
 
-    def deryptMessage(self, e):
-        m = ConvolutionPoly(self.N, self.q, m)
-        # r = self.getRandomPolynomial()
+    def decryptMessage(self, e):
+        self.f.set_modulus(self.q)
+        e.set_modulus(self.q)
+        a = self.f * e
 
-        # m.set_modulus(self.q)
-        # self.h.set_modulus(self.q)
-        # e = ConvolutionPoly(self.N, self.q, self.p*r) * self.h + m
-        
-        # return e
+        self.f.set_modulus(self.p)
+        a.set_modulus(self.p)
+        m = self.f.inverse() * a
+        return m
 
 
 
@@ -70,10 +80,10 @@ def main():
     ntru = NTRU()
     h = ntru.createKeys()
 
-    # m_coeffs = [1, 1, 2, 2, 0, 0, 1]
-    # e = ntru.encryptMessage(m_coeffs)
-
-
+    m_coeffs = [1, 1, 2, 2, 0, 0, 1]
+    e = ntru.encryptMessage(m_coeffs)
+    m = ntru.decryptMessage(e)
+    print(m)
     
 
 
