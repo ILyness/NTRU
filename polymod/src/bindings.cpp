@@ -134,9 +134,12 @@ PYBIND11_MODULE(polymod, m) {
 
             Returns
             -------
-            The inverse of the polynomial, if it exists. None otherwise.
+            ConvolutionPoly
+                The inverse of the polynomial, if it exists. None otherwise.
             )pbdoc")
         .def(py::self + py::self)
         .def(py::self * py::self)
+        .def(py::self / py::self)
+        .def(py::self % py::self)
         .def("__repr__", &ConvolutionPoly::toString);
 }

@@ -74,7 +74,7 @@ void ConvolutionPoly::parseEquation(int degreeMod, const std::string& equation) 
     }
 }
 
-int ConvolutionPoly::getIntegerInverse(int to_invert) {
+int ConvolutionPoly::getIntegerInverse(int to_invert) const {
     if (to_invert < 0) to_invert += q;
     if (to_invert == 0) throw std::invalid_argument("Cannot get inverse of 0.");
     if (to_invert == 1) return 1;
@@ -109,7 +109,7 @@ int ConvolutionPoly::getIntegerInverse(int to_invert) {
     return small_num_coef;
 }
 
-std::pair<ConvolutionPoly, ConvolutionPoly> ConvolutionPoly::divide(const ConvolutionPoly& other) {
+std::pair<ConvolutionPoly, ConvolutionPoly> ConvolutionPoly::divide(const ConvolutionPoly& other) const {
     std::vector<int> multiple(N);
     std::vector<int> remainder = coeffs;
     int n = get_d();
@@ -290,4 +290,18 @@ ConvolutionPoly ConvolutionPoly::operator*(const ConvolutionPoly& other) const {
         }
     }
     return ConvolutionPoly(N, q, result);
+}
+
+ConvolutionPoly ConvolutionPoly::operator/(const ConvolutionPoly& other) const {
+    std::pair<ConvolutionPoly, ConvolutionPoly> result = divide(other);
+    return result.first;
+}
+
+ConvolutionPoly ConvolutionPoly::operator%(const ConvolutionPoly& other) const {
+    std::pair<ConvolutionPoly, ConvolutionPoly> result = divide(other);
+    return result.second;
+}
+
+bool ConvolutionPoly::operator==(const ConvolutionPoly& other) const {
+    return (N == other.N) && (q == other.q) && (coeffs == other.coeffs);
 }

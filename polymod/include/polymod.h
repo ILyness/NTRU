@@ -16,8 +16,8 @@ private:
     int getCenterModulus(int n) const;
     void modCoefficients();
     void parseEquation(int degreeMod, const std::string& equation);
-    int getIntegerInverse(int to_invert);
-    std::pair<ConvolutionPoly, ConvolutionPoly> divide(const ConvolutionPoly& other);
+    int getIntegerInverse(int to_invert) const;
+    std::pair<ConvolutionPoly, ConvolutionPoly> divide(const ConvolutionPoly& other) const;
     std::pair<int, std::vector<ConvolutionPoly>> getQuotients(ConvolutionPoly mod, ConvolutionPoly to_invert);
 
 
@@ -44,6 +44,9 @@ public:
     ConvolutionPoly operator+(const ConvolutionPoly& other) const;
     ConvolutionPoly operator-(const ConvolutionPoly& other) const;
     ConvolutionPoly operator*(const ConvolutionPoly& other) const;
+    ConvolutionPoly operator/(const ConvolutionPoly& other) const;
+    ConvolutionPoly operator%(const ConvolutionPoly& other) const;
+    bool operator==(const ConvolutionPoly& other) const;
 };
 
 #endif
