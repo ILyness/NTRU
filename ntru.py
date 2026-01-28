@@ -47,13 +47,10 @@ class NTRU:
 
     def encryptMessage(self, m_coeffs):
         m = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=m_coeffs)
-
-        p_poly = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=[self.p] + [0 for _ in range(self.N-1)])
         r = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=self.getRandomPolynomial())
         self.h.set_modulus(self.q)
 
-        e = p_poly * r * self.h + m
-        
+        e = r.scalarMultiply(self.p) * self.h + m
         return e
 
     def decryptMessage(self, e):

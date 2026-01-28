@@ -37,6 +37,7 @@ public:
 
     // Operations
     void setModulus(int coeffMod);
+    ConvolutionPoly scalarMultiply(int coefficient);
     std::string toString() const;
     ConvolutionPoly inverse();
     

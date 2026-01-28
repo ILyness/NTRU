@@ -260,6 +260,14 @@ ConvolutionPoly ConvolutionPoly::inverse() {
     return small_poly_coef;
 }
 
+ConvolutionPoly ConvolutionPoly::scalarMultiply(int coefficient) {
+    std::vector<int> result(N);
+    for (size_t i = 0; i < N; i++) {
+        result[i] = coeffs[i] * coefficient;
+    }
+    return ConvolutionPoly(N, q, result); 
+}
+
 ConvolutionPoly ConvolutionPoly::operator+(const ConvolutionPoly& other) const {
     if (N != other.N) throw std::invalid_argument("Polynomial Ranks must match.");
     if (q != other.q) throw std::invalid_argument("Polynomial moduli must match.");

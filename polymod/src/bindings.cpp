@@ -137,6 +137,14 @@ PYBIND11_MODULE(polymod, m) {
             ConvolutionPoly
                 The inverse of the polynomial, if it exists. None otherwise.
             )pbdoc")
+        .def("scalarMultiply", &ConvolutionPoly::scalarMultiply, R"pbdoc(
+            Multiply the ConvolutionPoly by a scalar
+
+            Returns
+            -------
+            ConvolutionPoly
+                The new ConvolutionPoly
+            )pbdoc")
         .def(py::self + py::self)
         .def(py::self * py::self)
         .def(py::self / py::self)
