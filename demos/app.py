@@ -17,8 +17,7 @@ def generate_filtered_lattice(b1, b2, b3, limit):
     
     return Rx[mask], Ry[mask], Rz[mask]
 
-def get_cube_wireframe(limit):
-    l = limit
+def get_cube_wireframe(l):
     x = [l, l, -l, -l, l, l, -l, -l, l, l, l, l, -l, -l, -l, -l]
     y = [l, -l, -l, l, l, l, l, -l, -l, l, -l, -l, -l, -l, l, l]
     z = [l, l, l, l, l, -l, -l, -l, -l, -l, -l, l, l, -l, -l, l]

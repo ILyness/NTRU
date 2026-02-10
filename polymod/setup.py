@@ -7,11 +7,11 @@ __version__ = "2.0.0"
 # Define the C++ extension
 ext_modules = [
     Pybind11Extension(
-        "polymod",                # The name of the module importable in Python
+        "polymod", 
         [
             "src/bindings.cpp",
             "src/polymod.cpp"
-        ],   # The source file
+        ],   
         include_dirs=["include"],
         define_macros=[("VERSION_INFO", __version__)],
     ),
