@@ -11,11 +11,12 @@ def getRandomPolynomialCoeffs(N, d1=None, d2=None):
     return coefs
 
 class NTRU:
-    def __init__(self, N=8, p=3, q=41, d=2):
+    def __init__(self, N, p, q, d, show_work=False):
         self.N = N
         self.p = p
         self.q = q
         self.d = d
+        self.show_work = show_work
 
         if gcd(self.N, self.q) != 1 or gcd(self.p, self.q) != 1:
             print('Parameter error: we must have:\n     gcd(p, q) = gcd(N, q) = 1.')
@@ -126,12 +127,15 @@ def randomExample(N, p, q, d):
     e = ntru.encryptMessage(m_coeffs)
     m_new = ntru.decryptMessage(e)
 
+    print(ntru.f.coeffs)
+    print(ntru.g.coeffs)
+
     print(m_coeffs == m_new.coeffs)
 
 # Special parameters = (509, 3, 2048, 250)
 def main():
-    # textbookExample()
-    # randomExample(509, 3, 2047, 250)
+    textbookExample()
+    randomExample(13, 3, 101, 5)
     # randomExample(7, 3, 53, 2)
 
 if __name__ == '__main__':
