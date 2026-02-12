@@ -225,6 +225,23 @@ void ConvolutionPoly::setModulus(int coeffMod) {
 }
 
 ConvolutionPoly ConvolutionPoly::inverse() {
+    if (q > 3) {
+        int qbits = 0;
+        int mod = q;
+        for (mod; ~mod & 1; mod>>=1) qbits++;
+        mod >>= 1;
+        if (mod == 1) {
+            ConvolutionPoly f2 = ConvolutionPoly(N, q, coeffs);
+            f2.setModulus(2);
+            ConvolutionPoly G = f2.inverse();
+            for (int bit=qbits; bit; bit>>=1) {
+                G.setModulus(G.get_q() << 1);
+                G = G * (-(f2 * G) + 2);
+            }
+            G.setModulus(1 << qbits);
+            return G;
+        }
+    }
     N++;
     coeffs.push_back(0);
 
@@ -258,6 +275,65 @@ ConvolutionPoly ConvolutionPoly::inverse() {
     }
 
     return small_poly_coef;
+}
+
+ConvolutionPoly ConvolutionPoly::operator+(int scalar) const {
+    std::vector<int> result(N);
+    for (int i=0; i<N; i++) {
+        result[i] = coeffs[i] + scalar;
+    }
+    return ConvolutionPoly(N, q, result);
+}
+ConvolutionPoly ConvolutionPoly::operator-(int scalar) const {
+    std::vector<int> result(N);
+    for (int i=0; i<N; i++) {
+        result[i] = coeffs[i] - scalar;
+    }
+    return ConvolutionPoly(N, q, result);
+
+}
+ConvolutionPoly ConvolutionPoly::operator*(int scalar) const {
+    std::vector<int> result(N);
+    for (int i=0; i<N; i++) {
+        result[i] = coeffs[i] * scalar;
+    }
+    return ConvolutionPoly(N, q, result);
+
+}
+
+ConvolutionPoly ConvolutionPoly::operator-() const {
+    std::vector<int> result(N);
+    for (int i=0; i<N; i++) {
+        result[i] = coeffs[i] * -1;
+    }
+    return ConvolutionPoly(N, q, result);
+}
+
+ConvolutionPoly operator+(int scalar, const ConvolutionPoly& p) {
+    int N = p.get_N();
+    std::vector<int> result(N);
+    for (int i=0; i<N; i++) {
+        result[i] = scalar + p.getCoeffAt(i);
+    }
+    return ConvolutionPoly(N, p.get_q(), result);
+}
+
+ConvolutionPoly operator-(int scalar, const ConvolutionPoly& p) {
+    int N = p.get_N();
+    std::vector<int> result(N);
+    for (int i=0; i<N; i++) {
+        result[i] = scalar - p.getCoeffAt(i);
+    }
+    return ConvolutionPoly(N, p.get_q(), result);
+}
+
+ConvolutionPoly operator*(int scalar, const ConvolutionPoly& p) {
+    int N = p.get_N();
+    std::vector<int> result(N);
+    for (int i=0; i<N; i++) {
+        result[i] = scalar * p.getCoeffAt(i);
+    }
+    return ConvolutionPoly(N, p.get_q(), result);
 }
 
 ConvolutionPoly ConvolutionPoly::scalarMultiply(int coefficient) {

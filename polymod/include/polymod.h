@@ -45,9 +45,20 @@ public:
     ConvolutionPoly operator+(const ConvolutionPoly& other) const;
     ConvolutionPoly operator-(const ConvolutionPoly& other) const;
     ConvolutionPoly operator*(const ConvolutionPoly& other) const;
+    ConvolutionPoly operator+(int scalar) const;
+    ConvolutionPoly operator-(int scalar) const;
+    ConvolutionPoly operator*(int scalar) const;
+    ConvolutionPoly operator-() const;
+    friend ConvolutionPoly operator+(int scalar, const ConvolutionPoly& p);
+    friend ConvolutionPoly operator-(int scalar, const ConvolutionPoly& p);
+    friend ConvolutionPoly operator*(int scalar, const ConvolutionPoly& p);
     ConvolutionPoly operator/(const ConvolutionPoly& other) const;
     ConvolutionPoly operator%(const ConvolutionPoly& other) const;
     bool operator==(const ConvolutionPoly& other) const;
 };
+
+ConvolutionPoly operator+(int scalar, const ConvolutionPoly& p);
+ConvolutionPoly operator-(int scalar, const ConvolutionPoly& p);
+ConvolutionPoly operator*(int scalar, const ConvolutionPoly& p);
 
 #endif

@@ -149,5 +149,11 @@ PYBIND11_MODULE(polymod, m) {
         .def(py::self * py::self)
         .def(py::self / py::self)
         .def(py::self % py::self)
+        .def(py::self - int())
+        .def(py::self + int())
+        .def(py::self * int())
+        .def(int() - py::self)
+        .def(int() + py::self)
+        .def(int() * py::self)
         .def("__repr__", &ConvolutionPoly::toString);
 }
