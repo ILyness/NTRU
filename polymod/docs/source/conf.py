@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../../build/lib.macosx-12.3-arm64-cpython-313'))
+
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -9,7 +13,7 @@
 project = 'polymod'
 copyright = '2026, Indy Lyness'
 author = 'Indy Lyness'
-release = '1.0.0'
+release = '3.0.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

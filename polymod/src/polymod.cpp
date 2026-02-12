@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <iostream>
+#include <bitset>
 #include "../include/polymod.h"
 
 
@@ -214,7 +215,7 @@ std::string ConvolutionPoly::toString() const {
     }
     if (q) ss << " (modulo " << q << ") "; else ss << "(no modulus) ";
     ss << "[Rank " << N << ']';
-    if (first) return "0";
+    if (first) return "0 " + ss.str();
     return ss.str();
 }
 
@@ -226,22 +227,27 @@ void ConvolutionPoly::setModulus(int coeffMod) {
 
 ConvolutionPoly ConvolutionPoly::inverse() {
     if (q > 3) {
+        // std::cout << "q: " << q << std::endl;
+        // std::cout << "q binary:  " << std::bitset<sizeof(int) * __CHAR_BIT__>(q) << std::endl;
         int qbits = 0;
         int mod = q;
         for (mod; ~mod & 1; mod>>=1) qbits++;
         mod >>= 1;
+        // std::cout << "qbits: " << qbits << std::endl;
+        // std::cout << "mod binary:  " << std::bitset<sizeof(int) * __CHAR_BIT__>(mod) << std::endl;
         if (mod == 1) {
             ConvolutionPoly f2 = ConvolutionPoly(N, q, coeffs);
             f2.setModulus(2);
             ConvolutionPoly G = f2.inverse();
             for (int bit=qbits; bit; bit>>=1) {
                 G.setModulus(G.get_q() << 1);
-                G = G * (-(f2 * G) + 2);
+                G = G * (-(*this * G) + 2);
             }
             G.setModulus(1 << qbits);
             return G;
         }
     }
+
     N++;
     coeffs.push_back(0);
 

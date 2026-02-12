@@ -15,6 +15,5 @@ API Reference
 
 .. automodule:: polymod
    :members:
-   :undoc-members:
    :show-inheritance:
 
