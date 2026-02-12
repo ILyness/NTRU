@@ -4,11 +4,11 @@ import random
 
 
 class NTRU:
-    def __init__(self):
-        self.N = 7
-        self.p = 3
-        self.q = 41
-        self.d = 2
+    def __init__(self, N=8, p=3, q=41, d=2):
+        self.N = N
+        self.p = p
+        self.q = q
+        self.d = d
 
         if gcd(self.N, self.q) != 1 or gcd(self.p, self.q) != 1:
             print('Parameter error: we must have:\n     gcd(p, q) = gcd(N, q) = 1.')
@@ -50,7 +50,7 @@ class NTRU:
         r = ConvolutionPoly(rank=self.N, modulus=self.q, coeffs=self.getRandomPolynomial())
         self.h.set_modulus(self.q)
 
-        e = r.scalarMultiply(self.p) * self.h + m
+        e = (r * self.p) * self.h + m
         return e
 
     def decryptMessage(self, e):

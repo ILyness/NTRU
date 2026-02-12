@@ -1,4 +1,13 @@
 import socket
+import os
+import sys
+
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(parent_dir)
+
+from ntru import NTRU
+
+ntruencrypt = NTRU()
 
 # Configuration
 SERVER_IP = "10.133.14.133"
@@ -6,7 +15,6 @@ PORT = 65432
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((SERVER_IP, PORT))
-print(f"Connected to {SERVER_IP}\n")
 
 while True:
     message = input("Enter message to send: ")
@@ -15,6 +23,9 @@ while True:
     # ### <<< INSERT YOUR ENCRYPTION FUNCTION HERE >>> ###
     # Example: ciphertext = my_encrypt_func(message)
     # For now, we just pass it through:
+    ciphertext = ''
+    for c in message:
+        coeffs = list(format(ord(c), '08b'))
     ciphertext = message
     # ---------------------------------------------------------
 

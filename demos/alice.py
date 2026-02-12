@@ -1,4 +1,18 @@
 import socket
+import os
+import sys
+
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(parent_dir)
+
+from ntru import NTRU
+
+ntruencrypt = NTRU()
+f_coeffs = [-1, 0, 1, 1, -1, 0, 1]
+g_coeffs = [0, -1, -1, 0, 1, 0, 1]
+ntruencrypt.createKeys(f_coeffs, g_coeffs)
+
+
 
 # Configuration
 HOST = '0.0.0.0'  # Listen on all network interfaces
@@ -8,9 +22,7 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((HOST, PORT))
 server.listen()
 
-print(f"Listening for connections on port {PORT}...")
 conn, addr = server.accept()
-print(f"Connected by {addr}\n")
 
 while True:
     # 1. Receive the raw bytes from the network
