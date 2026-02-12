@@ -87,13 +87,14 @@ class NTRU:
         self.h.set_modulus(self.q)
 
         e = (r * self.p) * self.h + m
-        return e
+        return e.coeffs
 
-    def decryptMessage(self, e):
+    def decryptMessage(self, e_coeffs):
         if self.show_work: print(f'Decrypting message.')
 
+        e = ConvolutionPoly(self.N, self.q, e_coeffs)
+
         self.f.set_modulus(self.q)
-        e.set_modulus(self.q)
         a = self.f * e
 
         self.f.set_modulus(self.p)
@@ -103,7 +104,7 @@ class NTRU:
         self.printWork('a', a)
         self.printWork('m\'', m)
 
-        return m
+        return m.coeffs
 
 def textbookExample():
     ntru = NTRU(7, 3, 41, 2)
@@ -115,8 +116,7 @@ def textbookExample():
     e = ntru.encryptMessage(m_coeffs)
     m = ntru.decryptMessage(e)
 
-    print(m_coeffs)
-    print(m.coeffs)
+    print(m)
 
 
 def randomExample(N, p, q, d):

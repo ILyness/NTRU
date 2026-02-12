@@ -8,6 +8,7 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
 from ntru import NTRU
+from ntru_pipeline import decryptMessage
 
 ntruencrypt = NTRU(13, 3, 101, 5)
 f_coeffs = [-1, 1, 0, -1, 1, -1, 1, 1, 1, -1, 1, 0, -1]
@@ -48,10 +49,4 @@ while True:
     for block in batched(bits, 8):
         decrypted_message += chr(int(''.join([str(m) for m in block]), 2))
     
-    # ---------------------------------------------------------
-    # ### <<< INSERT YOUR DECRYPTION FUNCTION HERE >>> ###
-    # Example: decrypted_text = my_decrypt_func(received_message)
-    # For now, we just pass it through:
-    # ---------------------------------------------------------
-
     print(f"Received: {decrypted_message}") 

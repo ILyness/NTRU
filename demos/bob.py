@@ -8,6 +8,7 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
 from ntru import NTRU
+from ntru_pipeline import encryptMessage
 
 ntruencrypt = NTRU(13, 3, 101, 5)
 f_coeffs = [-1, 1, 0, -1, 1, -1, 1, 1, 1, -1, 1, 0, -1]
