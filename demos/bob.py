@@ -1,6 +1,8 @@
 import socket
 import os
 import sys
+from itertools import batched
+from polymod import ConvolutionPoly
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
@@ -24,9 +26,16 @@ while True:
     # Example: ciphertext = my_encrypt_func(message)
     # For now, we just pass it through:
     ciphertext = ''
+    messages = []
+    bits = []
     for c in message:
-        coeffs = list(format(ord(c), '08b'))
-    ciphertext = message
+        bits.extend(list(map(int, list(format(ord(c), '08b')))))
+    for block in batched(bits, ntruencrypt.N):
+        block = list(block)
+        if len(block) < ntruencrypt.N:
+            block = block.extend([0] * (ntruencrypt.N - len(block)))
+        ciphertext += ' '.join(ntruencrypt.encryptMessage(block).coeffs) + ' '
+
     # ---------------------------------------------------------
 
     # 3. Send data (must be encoded to bytes first)
