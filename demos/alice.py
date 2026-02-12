@@ -2,11 +2,12 @@ import socket
 import os
 import sys
 from itertools import batched
-from ntru import NTRU
 from polymod import ConvolutionPoly
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
+
+from ntru import NTRU
 
 ntruencrypt = NTRU(13, 3, 101, 5)
 f_coeffs = [-1, 1, 0, -1, 1, -1, 1, 1, 1, -1, 1, 0, -1]
@@ -25,19 +26,27 @@ conn, addr = server.accept()
 
 while True:
     # 1. Receive the raw bytes from the network
-    data = conn.recv(1024)
+    data = conn.recv(4096)
     if not data:
         break
     
     # 2. Decode bytes back to string (so you can process it)
     received_message = data.decode('utf-8')
-    coeffs = received_message.split()
+    coeffs = received_message.split()[:-1]
+    print(len(coeffs))
     bits = []
     decrypted_message = ''
+    assert len(coeffs) % ntruencrypt.N == 0
     for block in batched(coeffs, ntruencrypt.N):
-        bits.extend(ntruencrypt.decryptMessage(ConvolutionPoly(ntruencrypt.N, ntruencrypt.q, list(block))).coeffs)
+        print(block)
+        m = ConvolutionPoly(ntruencrypt.N, ntruencrypt.q, list(map(int, block)))
+        print(m)
+        result = ntruencrypt.decryptMessage(m).coeffs
+        print(result)
+        bits.extend(ntruencrypt.decryptMessage(m).coeffs[:8])
+    print(bits)
     for block in batched(bits, 8):
-        decrypted_message += chr(int(''.join(block), 2))
+        decrypted_message += chr(int(''.join([str(m) for m in block]), 2))
     
     # ---------------------------------------------------------
     # ### <<< INSERT YOUR DECRYPTION FUNCTION HERE >>> ###
