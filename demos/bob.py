@@ -24,15 +24,7 @@ client.connect((SERVER_IP, PORT))
 
 while True:
     message = input("Enter message to send: ")
-    
-    ciphertext = ''
-    messages = []
-    bits = []
-    for c in message:
-        bits.extend(list(map(int, list(format(ord(c), '08b')))))
-    for block in batched(bits, 8):
-        block = list(block) + [0]*(ntruencrypt.N - len(block))
-        ciphertext += ' '.join([str(m) for m in ntruencrypt.encryptMessage(block).coeffs]) + ' '
+    ciphertext = encryptMessage(message, ntruencrypt)
 
     try:
         client.sendall(ciphertext.encode('utf-8'))

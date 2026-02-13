@@ -32,21 +32,7 @@ while True:
         break
     
     # 2. Decode bytes back to string (so you can process it)
-    received_message = data.decode('utf-8')
-    coeffs = received_message.split()[:-1]
-    print(len(coeffs))
-    bits = []
-    decrypted_message = ''
-    assert len(coeffs) % ntruencrypt.N == 0
-    for block in batched(coeffs, ntruencrypt.N):
-        print(block)
-        m = ConvolutionPoly(ntruencrypt.N, ntruencrypt.q, list(map(int, block)))
-        print(m)
-        result = ntruencrypt.decryptMessage(m).coeffs
-        print(result)
-        bits.extend(ntruencrypt.decryptMessage(m).coeffs[:8])
-    print(bits)
-    for block in batched(bits, 8):
-        decrypted_message += chr(int(''.join([str(m) for m in block]), 2))
-    
-    print(f"Received: {decrypted_message}") 
+    ciphertext = data.decode('utf-8')
+    print(f"Received ciphertext: {ciphertext}") 
+    plaintext = decryptMessage(ciphertext, ntruencrypt)
+    print(f"Recovered plaintext: {plaintext}") 
