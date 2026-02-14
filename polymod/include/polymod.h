@@ -5,6 +5,8 @@
 #include <string>
 #include <iostream>
 
+enum class Generator {SAMPLE_IID, SAMPLE_FIXED_TYPE};
+
 class ConvolutionPoly {
 private:
     std::vector<int> coeffs;
@@ -17,12 +19,15 @@ private:
     void modCoefficients();
     void parseEquation(int degreeMod, const std::string& equation);
     int getIntegerInverse(int to_invert) const;
+    int getQBits() const;
     std::pair<ConvolutionPoly, ConvolutionPoly> divide(const ConvolutionPoly& other) const;
     std::pair<int, std::vector<ConvolutionPoly>> getQuotients(ConvolutionPoly mod, ConvolutionPoly to_invert);
 
 
 public:
     // Constructors
+    ConvolutionPoly();
+    ConvolutionPoly(int degreeMod, int coeffMod, const Generator& generator);
     ConvolutionPoly(int degreeMod);
     ConvolutionPoly(int degreeMod, int coeffMod);
     ConvolutionPoly(int degreeMod, int coeffMod, const std::vector<int>& vals);
@@ -37,8 +42,8 @@ public:
 
     // Operations
     void setModulus(int coeffMod);
-    ConvolutionPoly scalarMultiply(int coefficient);
     std::string toString() const;
+    std::string serialize() const;
     ConvolutionPoly inverse();
     
     // Operator Overloads

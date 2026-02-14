@@ -6,6 +6,9 @@
 #include <stdexcept>
 #include <iostream>
 #include <bitset>
+#include <bit>
+#include <random>
+#include <cstdint>
 #include "../include/polymod.h"
 
 
@@ -17,7 +20,7 @@ void ConvolutionPoly::calculateDegree() {
         }
     }
     d = 0;
-}
+};
 
 int ConvolutionPoly::getCenterModulus(int n) const {
     if (q == 0) return n;
@@ -25,17 +28,17 @@ int ConvolutionPoly::getCenterModulus(int n) const {
     if (res > q/2) res -= q;
     if (res < -q/2) res += q;
     return res;
-}
+};
 
 void ConvolutionPoly::modCoefficients() {
     if (q == 0) return;
     for (size_t i = 0; i < coeffs.size(); i++) {
         coeffs[i] = getCenterModulus(coeffs[i]);
     }
-}
+};
 
 void ConvolutionPoly::parseEquation(int degreeMod, const std::string& equation) {
-    coeffs = std::vector<int>(degreeMod+1, 0);
+    coeffs = std::vector<int>(degreeMod, 0);
     int a;
     size_t b;
     int sign = 1;
@@ -73,6 +76,13 @@ void ConvolutionPoly::parseEquation(int degreeMod, const std::string& equation) 
                 }
         }
     }
+};
+
+int ConvolutionPoly::getQBits() const {
+    int qbits = 0;
+    int mod = q;
+    for (qbits; mod; mod>>=1) qbits++;
+    return qbits;
 }
 
 int ConvolutionPoly::getIntegerInverse(int to_invert) const {
@@ -130,7 +140,7 @@ std::pair<ConvolutionPoly, ConvolutionPoly> ConvolutionPoly::divide(const Convol
         }
     }
     return std::pair<ConvolutionPoly, ConvolutionPoly>(ConvolutionPoly(N, q, multiple), ConvolutionPoly(N, q, remainder));
-}
+};
 
 std::pair<int, std::vector<ConvolutionPoly>> ConvolutionPoly::getQuotients(ConvolutionPoly mod, ConvolutionPoly to_invert) {
     std::vector<int> ones(N, 1);
@@ -169,8 +179,38 @@ std::pair<int, std::vector<ConvolutionPoly>> ConvolutionPoly::getQuotients(Convo
     }
 
     return std::pair<int, std::vector<ConvolutionPoly>>(dividend.coeffs[0], quotients);
-}
+};
 
+ConvolutionPoly::ConvolutionPoly() : N(3), q(0), coeffs(3, 0) {};
+ConvolutionPoly::ConvolutionPoly(int degreeMod, int coeffMod, const Generator& generator) : N(degreeMod), q(coeffMod) {
+    std::random_device rd;
+    std::mt19937 engine(rd());
+    coeffs = std::vector<int>(N);
+    switch (generator) {
+        case Generator::SAMPLE_IID:
+        std::independent_bits_engine<std::mt19937, 8, uint8_t> rbe(engine);
+            for (size_t i=0; i<N-1; i++) {
+                uint8_t random_byte = rbe();
+                coeffs[i] = (int)random_byte % 3;
+            }
+        case Generator::SAMPLE_FIXED_TYPE:
+            std::vector<std::pair<int, int>> rand_vals;
+            std::uniform_int_distribution<> distrib(1, 100);
+            int d = q / 16 - 1;
+            if (d == 0) throw std::invalid_argument("Coefficient modulus q is too small for sample_fixed_type generation.");
+            for (size_t i=0; i<N-1; i++) {
+                rand_vals[i].first = distrib(engine);
+                if (i < d) rand_vals[i].second = 1;
+                else if (i < 2*d) rand_vals[i].second = -1;
+                else rand_vals[i].second = 0;
+            }
+            std::sort(rand_vals.begin(), rand_vals.end());
+            for (size_t i=0; i<N-1; i++) {
+                coeffs[i] = rand_vals[i].second;
+            }
+    }
+    calculateDegree();
+};
 ConvolutionPoly::ConvolutionPoly(int degreeMod) : N(degreeMod), q(0), coeffs(degreeMod, 0), d(0) {};
 ConvolutionPoly::ConvolutionPoly(int degreeMod, int coeffMod) : N(degreeMod), q(coeffMod) {
     if (q < 0) throw std::invalid_argument("Coefficient modulus q must be positive.");
@@ -187,7 +227,7 @@ ConvolutionPoly::ConvolutionPoly(int degreeMod, int coeffMod, const std::string&
     parseEquation(degreeMod, equation);
     modCoefficients(); 
     calculateDegree();
-}
+};
 
 std::vector<int> ConvolutionPoly::get_coeffs() const { return coeffs; }
 int ConvolutionPoly::get_N() const { return N; }
@@ -197,7 +237,7 @@ int ConvolutionPoly::get_d() const { return d; }
 int ConvolutionPoly::getCoeffAt(int i) const {
     if (i >= N) throw std::invalid_argument("Index must be at most N.");
     return coeffs[i];
-}
+};
 
 std::string ConvolutionPoly::toString() const {
     std::stringstream ss;
@@ -217,13 +257,20 @@ std::string ConvolutionPoly::toString() const {
     ss << "[Rank " << N << ']';
     if (first) return "0 " + ss.str();
     return ss.str();
+};
+
+std::string ConvolutionPoly::serialize() const {
+    int num_bits = getQBits() * N;
+    num_bits += 8 - (num_bits % 8);
+    unsigned long long buffer;
+
 }
 
 void ConvolutionPoly::setModulus(int coeffMod) {
     if (coeffMod < 0) throw std::invalid_argument("Coefficient modulus q must be positive.");
     q = coeffMod;
     modCoefficients();
-}
+};
 
 ConvolutionPoly ConvolutionPoly::inverse() {
     if (q > 3) {
@@ -281,7 +328,7 @@ ConvolutionPoly ConvolutionPoly::inverse() {
     }
 
     return small_poly_coef;
-}
+};
 
 ConvolutionPoly ConvolutionPoly::operator+(int scalar) const {
     std::vector<int> result(N);
@@ -289,7 +336,7 @@ ConvolutionPoly ConvolutionPoly::operator+(int scalar) const {
         result[i] = coeffs[i] + scalar;
     }
     return ConvolutionPoly(N, q, result);
-}
+};
 ConvolutionPoly ConvolutionPoly::operator-(int scalar) const {
     std::vector<int> result(N);
     for (int i=0; i<N; i++) {
@@ -297,7 +344,7 @@ ConvolutionPoly ConvolutionPoly::operator-(int scalar) const {
     }
     return ConvolutionPoly(N, q, result);
 
-}
+};
 ConvolutionPoly ConvolutionPoly::operator*(int scalar) const {
     std::vector<int> result(N);
     for (int i=0; i<N; i++) {
@@ -305,7 +352,7 @@ ConvolutionPoly ConvolutionPoly::operator*(int scalar) const {
     }
     return ConvolutionPoly(N, q, result);
 
-}
+};
 
 ConvolutionPoly ConvolutionPoly::operator-() const {
     std::vector<int> result(N);
@@ -313,7 +360,7 @@ ConvolutionPoly ConvolutionPoly::operator-() const {
         result[i] = coeffs[i] * -1;
     }
     return ConvolutionPoly(N, q, result);
-}
+};
 
 ConvolutionPoly operator+(int scalar, const ConvolutionPoly& p) {
     int N = p.get_N();
@@ -322,7 +369,7 @@ ConvolutionPoly operator+(int scalar, const ConvolutionPoly& p) {
         result[i] = scalar + p.getCoeffAt(i);
     }
     return ConvolutionPoly(N, p.get_q(), result);
-}
+};
 
 ConvolutionPoly operator-(int scalar, const ConvolutionPoly& p) {
     int N = p.get_N();
@@ -331,7 +378,7 @@ ConvolutionPoly operator-(int scalar, const ConvolutionPoly& p) {
         result[i] = scalar - p.getCoeffAt(i);
     }
     return ConvolutionPoly(N, p.get_q(), result);
-}
+};
 
 ConvolutionPoly operator*(int scalar, const ConvolutionPoly& p) {
     int N = p.get_N();
@@ -340,15 +387,7 @@ ConvolutionPoly operator*(int scalar, const ConvolutionPoly& p) {
         result[i] = scalar * p.getCoeffAt(i);
     }
     return ConvolutionPoly(N, p.get_q(), result);
-}
-
-ConvolutionPoly ConvolutionPoly::scalarMultiply(int coefficient) {
-    std::vector<int> result(N);
-    for (size_t i = 0; i < N; i++) {
-        result[i] = coeffs[i] * coefficient;
-    }
-    return ConvolutionPoly(N, q, result); 
-}
+};
 
 ConvolutionPoly ConvolutionPoly::operator+(const ConvolutionPoly& other) const {
     if (N != other.N) throw std::invalid_argument("Polynomial Ranks must match.");
@@ -358,7 +397,7 @@ ConvolutionPoly ConvolutionPoly::operator+(const ConvolutionPoly& other) const {
         result[i] = coeffs[i] + other.coeffs[i];
     }
     return ConvolutionPoly(N, q, result);
-}
+};
 
 ConvolutionPoly ConvolutionPoly::operator-(const ConvolutionPoly& other) const {
     if (N != other.N) throw std::invalid_argument("Polynomial Ranks must match.");
@@ -368,7 +407,7 @@ ConvolutionPoly ConvolutionPoly::operator-(const ConvolutionPoly& other) const {
         result[i] = coeffs[i] - other.coeffs[i];
     }
     return ConvolutionPoly(N, q, result);
-}
+};
 
 ConvolutionPoly ConvolutionPoly::operator*(const ConvolutionPoly& other) const {
     if (N != other.N) throw std::invalid_argument("Polynomial Ranks must match.");
@@ -380,18 +419,18 @@ ConvolutionPoly ConvolutionPoly::operator*(const ConvolutionPoly& other) const {
         }
     }
     return ConvolutionPoly(N, q, result);
-}
+};
 
 ConvolutionPoly ConvolutionPoly::operator/(const ConvolutionPoly& other) const {
     std::pair<ConvolutionPoly, ConvolutionPoly> result = divide(other);
     return result.first;
-}
+};
 
 ConvolutionPoly ConvolutionPoly::operator%(const ConvolutionPoly& other) const {
     std::pair<ConvolutionPoly, ConvolutionPoly> result = divide(other);
     return result.second;
-}
+};
 
 bool ConvolutionPoly::operator==(const ConvolutionPoly& other) const {
     return (N == other.N) && (q == other.q) && (coeffs == other.coeffs);
-}
+};
