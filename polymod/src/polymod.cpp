@@ -25,8 +25,8 @@ void ConvolutionPoly::calculateDegree() {
 int ConvolutionPoly::getCenterModulus(int n) const {
     if (q == 0) return n;
     int res = n % q;
-    if (res > q/2) res -= q;
-    if (res < -q/2) res += q;
+    if (res > (q>>1)) res -= q;
+    if (res < -(q>>1)) res += q;
     return res;
 };
 
@@ -36,6 +36,12 @@ void ConvolutionPoly::modCoefficients() {
         coeffs[i] = getCenterModulus(coeffs[i]);
     }
 };
+
+int ConvolutionPoly::getQBits() const {
+    int qbits = 0;
+    for (int mod=q-1; mod; mod>>=1) qbits++;
+    return qbits;
+}
 
 void ConvolutionPoly::parseEquation(int degreeMod, const std::string& equation) {
     coeffs = std::vector<int>(degreeMod, 0);
@@ -77,13 +83,6 @@ void ConvolutionPoly::parseEquation(int degreeMod, const std::string& equation) 
         }
     }
 };
-
-int ConvolutionPoly::getQBits() const {
-    int qbits = 0;
-    int mod = q;
-    for (qbits; mod; mod>>=1) qbits++;
-    return qbits;
-}
 
 int ConvolutionPoly::getIntegerInverse(int to_invert) const {
     if (to_invert < 0) to_invert += q;
@@ -182,22 +181,43 @@ std::pair<int, std::vector<ConvolutionPoly>> ConvolutionPoly::getQuotients(Convo
 };
 
 ConvolutionPoly::ConvolutionPoly() : N(3), q(0), coeffs(3, 0) {};
+ConvolutionPoly::ConvolutionPoly(int degreeMod, int coeffMod, const std::vector<unsigned char>& serialization) : N(degreeMod), q(coeffMod) {
+    if (!q) throw std::invalid_argument("Polynomial must have coefficient modulus to serialize.");
+    int qbits = getQBits();
+    unsigned long long buffer;
+    coeffs = std::vector<int>(N);
+    int buf_size = 0;
+    int idx = 0;
+    for (unsigned char c : serialization) {
+        buffer = (buffer << 8) | c;
+        buf_size += 8;
+        while (buf_size > qbits) {
+            if (idx >= N) throw std::invalid_argument("Serialization does not match specified degree.");
+            coeffs[idx] = (buffer >> (buf_size - qbits)) & ((1 << qbits) - 1);
+            buf_size -= qbits;
+            idx++;
+        }
+    }
+    modCoefficients();
+}
 ConvolutionPoly::ConvolutionPoly(int degreeMod, int coeffMod, const Generator& generator) : N(degreeMod), q(coeffMod) {
     std::random_device rd;
     std::mt19937 engine(rd());
-    coeffs = std::vector<int>(N);
+    coeffs = std::vector<int>(N, 0);
     switch (generator) {
-        case Generator::SAMPLE_IID:
-        std::independent_bits_engine<std::mt19937, 8, uint8_t> rbe(engine);
-            for (size_t i=0; i<N-1; i++) {
+        case Generator::SAMPLE_IID: {
+            std::independent_bits_engine<std::mt19937, 8, uint8_t> rbe(engine);
+            for (int i=0; i<N-1; i++) {
                 uint8_t random_byte = rbe();
                 coeffs[i] = (int)random_byte % 3;
             }
-        case Generator::SAMPLE_FIXED_TYPE:
-            std::vector<std::pair<int, int>> rand_vals;
-            std::uniform_int_distribution<> distrib(1, 100);
+            break;
+        }
+        case Generator::SAMPLE_FIXED_TYPE: {
+            std::vector<std::pair<int, int>> rand_vals(N);
+            std::uniform_int_distribution<> distrib(1, N);
             int d = q / 16 - 1;
-            if (d == 0) throw std::invalid_argument("Coefficient modulus q is too small for sample_fixed_type generation.");
+            if (d <= 0) throw std::invalid_argument("Coefficient modulus q is too small for sample_fixed_type generation.");
             for (size_t i=0; i<N-1; i++) {
                 rand_vals[i].first = distrib(engine);
                 if (i < d) rand_vals[i].second = 1;
@@ -208,6 +228,8 @@ ConvolutionPoly::ConvolutionPoly(int degreeMod, int coeffMod, const Generator& g
             for (size_t i=0; i<N-1; i++) {
                 coeffs[i] = rand_vals[i].second;
             }
+            break;
+        }
     }
     calculateDegree();
 };
@@ -260,11 +282,22 @@ std::string ConvolutionPoly::toString() const {
 };
 
 std::string ConvolutionPoly::serialize() const {
-    int num_bits = getQBits() * N;
-    num_bits += 8 - (num_bits % 8);
-    unsigned long long buffer;
-
-}
+    if (!q) throw std::invalid_argument("Polynomial must have coefficient modulus to serialize.");
+    int qbits = getQBits();
+    unsigned long long buffer = 0;
+    int buf_size = 0;
+    std::vector<unsigned char> bytes;
+    for (int coeff : coeffs) {
+        buffer = (buffer << qbits) | coeff;
+        buf_size += qbits;
+        while (buf_size > 8) {
+            bytes.push_back((buffer >> (buf_size-8)) & 0xFF);
+            buf_size -= 8;
+        }
+    }
+    if (buf_size) bytes.push_back((buffer & ((1 << buf_size) - 1)) << (8 - buf_size));
+    return std::string(bytes.begin(), bytes.end());
+};
 
 void ConvolutionPoly::setModulus(int coeffMod) {
     if (coeffMod < 0) throw std::invalid_argument("Coefficient modulus q must be positive.");

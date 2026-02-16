@@ -67,6 +67,31 @@ int main() {
     std::cout << "p: " << p.toString() << std::endl;
     std::cout << std::endl;
 
+    std::cout << "Testing generation..." << std::endl;
+    std::cout << "SAMPLE_IID:" << std::endl;
+    ConvolutionPoly r = ConvolutionPoly(11, 41, Generator::SAMPLE_IID);
+    std::cout << r.toString() << std::endl;
+    std::cout << "SAMPLE_FIXED_TYPE:" << std::endl;
+    r = ConvolutionPoly(11, 41, Generator::SAMPLE_FIXED_TYPE);
+    std::cout << r.toString() << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "Testing serialization..." << std::endl;
+    ConvolutionPoly g = ConvolutionPoly(7, 32, Generator::SAMPLE_IID);
+    std::cout << "g:" << std::endl;
+    std::cout << g.toString() << std::endl;
+    std::cout << "Serialization:" << std::endl;
+    std::string serialization = g.serialize();
+    // std::cout << serialization << std::endl;
+    for (char c : serialization) std::cout << std::bitset<8>(c) << std::endl;
+    std::vector<unsigned char> bytes(serialization.size());
+    for (int i=0; i<bytes.size(); i++) bytes[i] = serialization[i];
+    g = ConvolutionPoly(7, 32, bytes);
+    std::cout << "Recovered g:" << std::endl;
+    std::cout << g.toString() << std::endl;
+
+
+
     std::cout << "Testing inverses..." << std::endl;
     ConvolutionPoly f = ConvolutionPoly(11, 73, "x^10+x^8-x^3+x^2-1");
     std::cout << "f: " << f.toString() << std::endl;
@@ -75,6 +100,7 @@ int main() {
     std::cout << "f: " << f.toString() << std::endl;
     std::cout << "f.inverse(): " << f.inverse().toString() << std::endl;
     std::cout << std::endl;
+
 
     return 0;
 }

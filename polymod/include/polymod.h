@@ -31,6 +31,7 @@ public:
     ConvolutionPoly(int degreeMod);
     ConvolutionPoly(int degreeMod, int coeffMod);
     ConvolutionPoly(int degreeMod, int coeffMod, const std::vector<int>& vals);
+    ConvolutionPoly(int degreeMod, int coeffMod, const std::vector<unsigned char>& serialization);
     ConvolutionPoly(int degreeMod, int coeffMod, const std::string& equation);
 
     // Getters
