@@ -4,12 +4,13 @@ import sys
 from ntru import NTRU, getRandomPolynomialCoeffs
 from polymod import ConvolutionPoly
 
-def slow_print(text, delay=0.05):
+def slow_print(text, delay=0.05, final_delay=1, end=None):
     for character in text:
         sys.stdout.write(character)
         sys.stdout.flush()
         time.sleep(delay)
     print()
+    time.sleep(final_delay)
 
 def padValues(values, padding, mod):
     return values + (padding * (mod - (len(values) % mod)))
@@ -24,10 +25,10 @@ def encryptMessage(plaintext, N, p, q, d, h_str):
 
     for block_plaintext in batched(plaintext, block_size):
         block_plaincoeffs = blockToBinaryCoeffs(block_plaintext, N)
-        block_ciphercoeffs = encryptFromH(N, p, q, d, h_coeffs, block_plaincoeffs)
+        block_ciphercoeffs, m, r, e = encryptFromH(N, p, q, d, h_coeffs, block_plaincoeffs)
         ciphertext += qnaryCoeffsToBlock(block_ciphercoeffs, q)
     
-    return ciphertext
+    return (ciphertext, m, r, e)
 
 def encryptFromH(N, p, q, d, h_coeffs, m_coeffs):
     h = ConvolutionPoly(rank=N, modulus=q, coeffs=h_coeffs)
@@ -35,7 +36,7 @@ def encryptFromH(N, p, q, d, h_coeffs, m_coeffs):
     r = ConvolutionPoly(rank=N, modulus=q, coeffs=getRandomPolynomialCoeffs(N, d, d))
 
     e = (r * p) * h + m
-    return e.coeffs
+    return (e.coeffs, m, r, e)
 
 def decryptMessage(ciphertext, ntru):
     plaintext = ''
