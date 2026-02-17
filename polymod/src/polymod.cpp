@@ -189,9 +189,9 @@ ConvolutionPoly::ConvolutionPoly(int degreeMod, int coeffMod, const std::vector<
     int buf_size = 0;
     int idx = 0;
     for (unsigned char c : serialization) {
-        buffer = (buffer << 8) | c;
-        buf_size += 8;
-        while (buf_size > qbits) {
+        buffer = (buffer << 7) | c;
+        buf_size += 7;
+        while (buf_size >= qbits) {
             if (idx >= N) throw std::invalid_argument("Serialization does not match specified degree.");
             coeffs[idx] = (buffer >> (buf_size - qbits)) & ((1 << qbits) - 1);
             buf_size -= qbits;
@@ -199,7 +199,7 @@ ConvolutionPoly::ConvolutionPoly(int degreeMod, int coeffMod, const std::vector<
         }
     }
     modCoefficients();
-}
+};
 ConvolutionPoly::ConvolutionPoly(int degreeMod, int coeffMod, const Generator& generator) : N(degreeMod), q(coeffMod) {
     std::random_device rd;
     std::mt19937 engine(rd());
@@ -288,14 +288,14 @@ std::string ConvolutionPoly::serialize() const {
     int buf_size = 0;
     std::vector<unsigned char> bytes;
     for (int coeff : coeffs) {
-        buffer = (buffer << qbits) | coeff;
+        buffer = (buffer << qbits) | ((coeff +q) % q);
         buf_size += qbits;
-        while (buf_size > 8) {
-            bytes.push_back((buffer >> (buf_size-8)) & 0xFF);
-            buf_size -= 8;
+        while (buf_size >= 7) {
+            bytes.push_back((buffer >> (buf_size-7)) & 0x7F);
+            buf_size -= 7;
         }
     }
-    if (buf_size) bytes.push_back((buffer & ((1 << buf_size) - 1)) << (8 - buf_size));
+    if (buf_size) bytes.push_back((buffer & ((1 << buf_size) - 1)) << (7 - buf_size));
     return std::string(bytes.begin(), bytes.end());
 };
 

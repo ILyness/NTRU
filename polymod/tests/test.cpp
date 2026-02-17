@@ -77,7 +77,7 @@ int main() {
     std::cout << std::endl;
 
     std::cout << "Testing serialization..." << std::endl;
-    ConvolutionPoly g = ConvolutionPoly(7, 32, Generator::SAMPLE_IID);
+    ConvolutionPoly g = ConvolutionPoly(11, 41, Generator::SAMPLE_IID);
     std::cout << "g:" << std::endl;
     std::cout << g.toString() << std::endl;
     std::cout << "Serialization:" << std::endl;
@@ -86,9 +86,10 @@ int main() {
     for (char c : serialization) std::cout << std::bitset<8>(c) << std::endl;
     std::vector<unsigned char> bytes(serialization.size());
     for (int i=0; i<bytes.size(); i++) bytes[i] = serialization[i];
-    g = ConvolutionPoly(7, 32, bytes);
+    ConvolutionPoly g2 = ConvolutionPoly(11, 41, bytes);
     std::cout << "Recovered g:" << std::endl;
-    std::cout << g.toString() << std::endl;
+    std::cout << g2.toString() << std::endl;
+    std::cout << "g = g: " << (g == g2) << std::endl;
 
 
 

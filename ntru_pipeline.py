@@ -1,6 +1,15 @@
 from itertools import batched
+import time
+import sys
 from ntru import NTRU, getRandomPolynomialCoeffs
 from polymod import ConvolutionPoly
+
+def slow_print(text, delay=0.05):
+    for character in text:
+        sys.stdout.write(character)
+        sys.stdout.flush()
+        time.sleep(delay)
+    print()
 
 def padValues(values, padding, mod):
     return values + (padding * (mod - (len(values) % mod)))
