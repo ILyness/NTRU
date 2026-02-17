@@ -26,8 +26,9 @@ while True:
 
     client_name = Colors.BOB + input("What is your name? ") + Colors.RESET
     client.sendall(client_name.encode('utf-8'))
+    slow_print(f"\nHi, {client_name}!")
     host_name = client.recv(128).decode('utf-8')
-    slow_print(f"\nHi, {client_name}! You are trying to talk with {host_name}, but {Colors.EVE}Eve{Colors.RESET} is listening.")
+    slow_print(f"You are trying to talk with {host_name}, but {Colors.EVE}Eve{Colors.RESET} is listening.")
 
     slow_print(f"We will use {Colors.BOLD}NTRUEncrypt{Colors.RESET} with 𝑁 = {N}, 𝑝 = {p}, 𝑞 = {q}, 𝑑 = {d} to encrypt your message.")
     slow_print(f"Before we can send your message, we need to get {host_name}'s public key.")

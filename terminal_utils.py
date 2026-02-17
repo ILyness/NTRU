@@ -3,6 +3,10 @@ import time
 import sys
 import itertools
 import re
+import random
+import string
+import shutil
+import math
 
 def prettify_polynomial(poly_str):
     superscript_map = {
@@ -56,13 +60,28 @@ class Colors:
     RESET = '\033[0m'
 
 FUN_FACTS = [
-    f"{Colors.BOLD}NTRUEncrypt{Colors.RESET} was founded by Hoffstein, Pipher, and Silverman in 1998!",
-    f"{Colors.BOLD}NTRU{Colors.RESET} stands for Narwhals, Turtles, Raccoons, and sea Urchins!",
-    f"{Colors.BOLD}NTRU{Colors.RESET} stands for {Colors.ITALIC}𝑁th Degree Truncated polynomial Ring Unit{Colors.RESET}!",
-    f"{Colors.BOLD}NTRU{Colors.RESET} stands for {Colors.ITALIC}Number Theorists R Us{Colors.RESET}!",
-    f"{Colors.BOLD}NTRUEncrypt{Colors.RESET} was a finalist for the NIST PQC standardization (or more likely just its name)",
-    f"{Colors.EVE}Eve{Colors.RESET} is always listening..."
+    f"NTRUEncrypt was founded by Hoffstein, Pipher, and Silverman in 1998!",
+    f"NTRU stands for Narwhals, Turtles, Raccoons, and sea Urchins!",
+    f"NTRU stands for 𝑁th Degree Truncated polynomial Ring Unit!",
+    f"NTRU stands for Number Theorists R Us!",
+    f"NTRUEncrypt was a finalist for the NIST PQC standardization (or more likely just its name)",
+    f"Eve is always listening..."
 ]
+
+STYLES = [
+    '\033[31m', # Red
+    '\033[32m', # Green
+    '\033[33m', # Yellow
+    '\033[34m', # Blue
+    '\033[35m', # Magenta
+    '\033[36m', # Cyan
+    '\033[1m',  # Bold
+    '\033[3m',  # Italic
+    '\033[4m',  # Underline
+    '\033[1;31m', # Bold Red
+    '\033[1;32m', # Bold Green
+]
+RESET = '\033[0m'
 
 class Loader:
     def __init__(self, desc="Loading...", end="Done!", timeout=0.1):
@@ -86,13 +105,59 @@ class Loader:
         return self
 
     def _animate(self):
+        HEIGHT = 4
+        characters = string.ascii_letters + string.digits
+        def force_fit(text, width):
+            if len(text) > width:
+                return text[:width-3] + "..."
+            return text
+
+        i = 0
+        fact = random.choice(FUN_FACTS)
+        current_style = random.choice(STYLES)
+        
+        # 1. RESERVE SPACE (Crucial Step)
+        # We print 4 empty lines to create our "canvas". 
+        # This guarantees we never accidentally move up into old history.
+        sys.stdout.write("\n" * HEIGHT)
+
         for c in itertools.cycle(self.steps):
+            # --- LOGIC ---
+            # Update fact every 15 cycles (slows down fact changing)
+            if i % 15 == 0:
+                fact = random.choice(FUN_FACTS)
+                current_style = random.choice(STYLES)
+            i += 1
+            
+            # Get terminal width (subtract 1 to prevent edge-case wrapping)
+            width = shutil.get_terminal_size().columns - 1
+            for _ in range(100):
+                # --- PREPARE LINES ---
+                # We enforce exactly 4 lines. We truncate them to 'width'
+                # so they NEVER wrap unexpectedly.
+                lines = [
+                    force_fit(f"{self.desc} {c}", width),
+                    force_fit(''.join(random.choices(characters, k=10)), width), # s1
+                    current_style + force_fit(fact, width) + RESET,                                     # Fact
+                    force_fit(''.join(random.choices(characters, k=10)), width)  # s2
+                ]
+                
+                # --- RENDER ---
+                # 1. Move up 4 lines (to the start of our reserved space)
+                sys.stdout.write(f"\033[{HEIGHT}F") 
+                if self.done:
+                    print((' ' * (width-1) + '\n') * (HEIGHT + 1))
+                    sys.stdout.write(f"\033[{HEIGHT}F") 
+                    break
+                
+                # 2. Print the lines (Clear line first with \033[K)
+                for line in lines:
+                    sys.stdout.write(f"\033[K{line}\n")
+                
+                sys.stdout.flush()
+                time.sleep(self.timeout / 100)
             if self.done:
                 break
-            # Print the character and move cursor back
-            sys.stdout.write(f"\r{self.desc} {c}")
-            sys.stdout.flush()
-            time.sleep(self.timeout)
 
     def stop(self):
         self.done = True
