@@ -25,6 +25,9 @@ conn, addr = server.accept()
 
 
 while True:
+    conn.sendall("done".encode('utf-8'))
+    print("\033[H\033[J", end="")
+
     host_name = Colors.ALICE + input("What is your name? ") + Colors.RESET
     slow_print(f"\nHi, {host_name}!")
     conn.sendall(host_name.encode('utf-8'))
@@ -48,12 +51,10 @@ while True:
     with Loader(desc=f"Waiting for {client_name}'s message...", end=f"{client_name} has sent you their ciphertext."):
         data = conn.recv(4096)
     ciphertext = data.decode('utf-8')
-    slow_print(f"{Colors.BOLD}Ciphertext{Colors.RESET}: {Colors.MESSAGE}{repr(ciphertext)[1:-1]}{Colors.RESET}")
+    slow_print(f"{Colors.BOLD}Ciphertext{Colors.RESET}: {Colors.MESSAGE}{repr(ciphertext)[1:-1]}{Colors.RESET}", delay=0.02)
     slow_print(f"{Colors.EVE}Eve{Colors.RESET} can see your public key and {client_name}'s ciphertext, but she won't be able to retrieve m.")
     slow_print("However, you can use your private keys to decrypt the message. The decrypted result is:")
     plaintext = decryptMessage(ciphertext, ntruencrypt)
     slow_print(plaintext)
 
     time.sleep(5)
-    conn.sendall("done".encode('utf-8'))
-    print("\033[H\033[J", end="")
