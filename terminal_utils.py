@@ -51,8 +51,18 @@ class Colors:
     BLUE = '\033[94m'
     MAGENTA = '\033[35m'
     BOLD = '\033[1m'
+    ITALIC = '\033[3m'
     UNDERLINE = '\033[4m'
     RESET = '\033[0m'
+
+FUN_FACTS = [
+    f"{Colors.BOLD}NTRUEncrypt{Colors.RESET} was founded by Hoffstein, Pipher, and Silverman in 1998!",
+    f"{Colors.BOLD}NTRU{Colors.RESET} stands for Narwhals, Turtles, Raccoons, and sea Urchins!",
+    f"{Colors.BOLD}NTRU{Colors.RESET} stands for {Colors.ITALIC}𝑁th Degree Truncated polynomial Ring Unit{Colors.RESET}!",
+    f"{Colors.BOLD}NTRU{Colors.RESET} stands for {Colors.ITALIC}Number Theorists R Us{Colors.RESET}!",
+    f"{Colors.BOLD}NTRUEncrypt{Colors.RESET} was a finalist for the NIST PQC standardization (or more likely just its name)",
+    f"{Colors.EVE}Eve{Colors.RESET} is always listening..."
+]
 
 class Loader:
     def __init__(self, desc="Loading...", end="Done!", timeout=0.1):
