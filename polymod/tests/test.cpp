@@ -96,6 +96,7 @@ int main() {
     ConvolutionPoly f = ConvolutionPoly(11, 41, Generator::SAMPLE_IID);
     std::cout << "f: " << f.toString() << std::endl;
     std::cout << "f.inverse(): " << f.inverse().toString() << std::endl;
+    std::cout << "f * f.inverse(): " << (f * f.inverse()).toString() << std::endl;
     f.setModulus(64);
     std::cout << "f: " << f.toString() << std::endl;
     std::cout << "f.inverse(): " << f.inverse().toString() << std::endl;

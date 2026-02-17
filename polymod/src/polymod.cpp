@@ -316,8 +316,7 @@ ConvolutionPoly ConvolutionPoly::inverse() {
         // std::cout << "qbits: " << qbits << std::endl;
         // std::cout << "mod binary:  " << std::bitset<sizeof(int) * __CHAR_BIT__>(mod) << std::endl;
         if (mod == 1) {
-            ConvolutionPoly f2 = ConvolutionPoly(N, q, coeffs);
-            f2.setModulus(2);
+            ConvolutionPoly f2 = ConvolutionPoly(N, 2, coeffs);
             ConvolutionPoly G = f2.inverse();
             for (int bit=qbits; bit; bit>>=1) {
                 G.setModulus(G.get_q() << 1);
