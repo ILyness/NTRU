@@ -60,26 +60,74 @@ class Colors:
     RESET = '\033[0m'
 
 FUN_FACTS = [
-    f"NTRUEncrypt was founded by Hoffstein, Pipher, and Silverman in 1998!",
-    f"NTRU stands for Narwhals, Turtles, Raccoons, and sea Urchins!",
-    f"NTRU stands for 𝑁th Degree Truncated polynomial Ring Unit!",
-    f"NTRU stands for Number Theorists R Us!",
-    f"NTRUEncrypt was a finalist for the NIST PQC standardization (or more likely just its name)",
-    f"Eve is always listening..."
+    # --- NTRU ---
+    "NTRUEncrypt was founded by Hoffstein, Pipher, and Silverman in 1998!",
+    "NTRU stands for Narwhals, Turtles, Raccoons, and sea Urchins!",
+    "NTRU stands for Nth Degree Truncated polynomial Ring Unit!",
+    "NTRU stands for Number Theorists R Us!",
+    "NTRU is based on the Shortest Vector Problem in a lattice.",
+    "Unlike RSA, NTRU is considered 'Post-Quantum' secure.",
+    
+    # --- RSA ---
+    "RSA is based on the difficulty of factoring large prime numbers.",
+    "Clifford Cocks invented RSA at GCHQ years before the public knew.",
+    "Shor's Algorithm on a quantum computer could break RSA.",
+    
+    # --- ECC / ECDH ---
+    "A 256-bit ECC key is as strong as a 3072-bit RSA key!",
+    "Bitcoin uses the elliptic curve secp256k1.",
+    "ECDH lets you agree on a secret key over public channels.",
+    
+    # --- General ---
+    "Eve is always listening...",
+    "Mallory is always tampering...",
+    "Alice and Bob have been talking since 1978.",
+    "The One-Time Pad is the only mathematically unbreakable cipher.",
+    "Kerckhoffs's principle: The enemy knows the system!",
+    "Rot13 is the best encryption (just kidding)."
 ]
 
 STYLES = [
+    # --- Standard Foreground Colors ---
     '\033[31m', # Red
     '\033[32m', # Green
     '\033[33m', # Yellow
     '\033[34m', # Blue
     '\033[35m', # Magenta
     '\033[36m', # Cyan
+    '\033[37m', # White
+
+    # --- Bright / High Intensity Foregrounds ---
+    '\033[91m', # Bright Red
+    '\033[92m', # Bright Green
+    '\033[93m', # Bright Yellow
+    '\033[94m', # Bright Blue
+    '\033[95m', # Bright Magenta
+    '\033[96m', # Bright Cyan
+    '\033[97m', # Bright White
+
+    # --- Formatting ---
     '\033[1m',  # Bold
+    '\033[2m',  # Dim (Faint)
     '\033[3m',  # Italic
     '\033[4m',  # Underline
-    '\033[1;31m', # Bold Red
-    '\033[1;32m', # Bold Green
+    '\033[7m',  # Reverse (Swaps background and foreground)
+    '\033[9m',  # Strikethrough
+
+    # --- Background Colors (High Contrast) ---
+    '\033[41m', # Red Background
+    '\033[42m', # Green Background
+    '\033[44m', # Blue Background
+    '\033[45m', # Magenta Background
+
+    # --- COMBOS (The "Chaos" Options) ---
+    '\033[1;31m',    # Bold Red
+    '\033[1;32m',    # Bold Green
+    '\033[1;33m',    # Bold Yellow
+    '\033[4;36m',    # Underline Cyan
+    '\033[1;97;41m', # Bold White on Red Background (Error style)
+    '\033[1;30;47m', # Bold Black on White Background
+    '\033[3;35m',    # Italic Magenta
 ]
 RESET = '\033[0m'
 
