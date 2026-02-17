@@ -48,7 +48,7 @@ while True:
     slow_print("We now can generate your final polynomial e:")
     slow_print(f"\n{Colors.BOLD}e{Colors.RESET} = {prettify_polynomial(e.__str__())}\n", delay=0.02)
     slow_print("Like before, we now express e as your final ciphertext.")
-    slow_print(f"{Colors.BOLD}Ciphertext{Colors.RESET}: {Colors.MESSAGE}{repr(ciphertext)[1:-1]}{Colors.RESET}")
+    slow_print(f"{Colors.BOLD}Ciphertext{Colors.RESET}: {Colors.MESSAGE}{repr(ciphertext)[1:-1]}{Colors.RESET}", delay=0.02)
     slow_print(f"{Colors.EVE}Eve{Colors.RESET} can see {host_name}'s public key and your ciphertext, but she won't be able to retrieve m.")
     slow_print(f"Sending {host_name} your ciphertext.")
     client.sendall(ciphertext.encode('utf-8'))
