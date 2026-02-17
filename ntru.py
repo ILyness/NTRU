@@ -42,11 +42,11 @@ class NTRU:
         while not successful and i <20:
             f_coeffs = getRandomPolynomialCoeffs(self.N, self.d+1, self.d)
             try:
-                self.createKeys(f_coeffs, g_coeffs)
+                h = self.createKeys(f_coeffs, g_coeffs)
                 successful = True
             except:
                 i += 1
-            
+        return h
 
     def createKeys(self, f_coeffs=None, g_coeffs=None):
         if self.show_work: print('Creating keys.')
@@ -78,6 +78,7 @@ class NTRU:
 
         self.h = F_q * self.g
         self.printWork('h', self.h)
+        return self.h.coeffs
 
     def encryptMessage(self, m_coeffs):
         if self.show_work: print(f'Encrypting message.')

@@ -1,23 +1,32 @@
 from itertools import batched
-from ntru import NTRU
+from ntru import NTRU, getRandomPolynomialCoeffs
+from polymod import ConvolutionPoly
 
 def padValues(values, padding, mod):
     return values + (padding * (mod - (len(values) % mod)))
 
 
-def encryptMessage(plaintext, ntru):
-    block_size = ntru.N // 8
+def encryptMessage(plaintext, N, p, q, d, h_str):
+    h_coeffs = qnaryBlockToCoeffs(h_str)
+    block_size = N // 8
 
     plaintext = padValues(plaintext, '\0', block_size)
     ciphertext = ''
 
     for block_plaintext in batched(plaintext, block_size):
-        block_plaincoeffs = blockToBinaryCoeffs(block_plaintext, ntru.N)
-        block_ciphercoeffs = ntru.encryptMessage(block_plaincoeffs)
-        ciphertext += qnaryCoeffsToBlock(block_ciphercoeffs, ntru.q)
+        block_plaincoeffs = blockToBinaryCoeffs(block_plaintext, N)
+        block_ciphercoeffs = encryptFromH(N, p, q, d, h_coeffs, block_plaincoeffs)
+        ciphertext += qnaryCoeffsToBlock(block_ciphercoeffs, q)
     
     return ciphertext
 
+def encryptFromH(N, p, q, d, h_coeffs, m_coeffs):
+    h = ConvolutionPoly(rank=N, modulus=q, coeffs=h_coeffs)
+    m = ConvolutionPoly(rank=N, modulus=q, coeffs=m_coeffs)
+    r = ConvolutionPoly(rank=N, modulus=q, coeffs=getRandomPolynomialCoeffs(N, d, d))
+
+    e = (r * p) * h + m
+    return e.coeffs
 
 def decryptMessage(ciphertext, ntru):
     plaintext = ''
@@ -55,9 +64,14 @@ def qnaryBlockToCoeffs(block):
 
 
 def main():
-    ntru = NTRU(17, 3, 101, 5)
-    ntru.createRandomKeys()
-    ciphertext = encryptMessage('catdogdjfkj123123', ntru)
+    N, p, q, d = 17, 3, 101, 5
+    ntru = NTRU(N, p, q, d)
+    h_coeffs = ntru.createRandomKeys()
+    h_str = qnaryCoeffsToBlock(h_coeffs, q)
+    print(repr(h_str)[1:-1])
+
+    ciphertext = encryptMessage('catdogdjfkj123123', N, p, q, d, h_str)
+    print(repr(ciphertext)[1:-1])
     plaintext = decryptMessage(ciphertext, ntru)
     print(plaintext)
 
