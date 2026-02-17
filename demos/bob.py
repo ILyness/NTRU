@@ -39,10 +39,18 @@ while True:
     h = ConvolutionPoly(rank=N, modulus=q, coeffs=qnaryBlockToCoeffs(h_str)) 
     slow_print(f"\n{Colors.BOLD}h{Colors.RESET} = {prettify_polynomial(h.__str__())}\n", delay=0.02)
     slow_print(f"Now that we have {host_name}'s public key, we can send them messages.")
-    slow_print("Enter a message to send: ", end='')
-    plaintext = input()
+    
+    bad_message = True
+    while bad_message:
+        slow_print("Enter a message to send: ", end='')
+        plaintext = input()
 
-    ciphertext, m, r, e = encryptMessage(plaintext, N, p, q, d, h_str)
+        try:
+            ciphertext, m, r, e = encryptMessage(plaintext, N, p, q, d, h_str)
+            bad_message = False
+        except:
+            slow_print("Sorry, your message seems really cool, but it makes me sad, so I'm not going to encrypt it. :(")
+
     slow_print("We need to break your message into blocks, and assign each bock a polynomial. The first polynomial is: ")
     slow_print(f"\n{Colors.BOLD}m{Colors.RESET} = {prettify_polynomial(m.__str__())}\n", delay=0.02)
     slow_print("We now generate a random polynomial r:")

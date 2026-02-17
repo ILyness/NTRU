@@ -70,8 +70,6 @@ def charNumToCoef(char_num):
 
 def qnaryCoeffsToBlock(coeffs, q):
     return ''.join([chr(coefToCharNum(c % q)) for c in coeffs])
-    
-
 
 def qnaryBlockToCoeffs(block):
     return [charNumToCoef(ord(char)) for char in block]
