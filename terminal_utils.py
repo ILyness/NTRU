@@ -44,6 +44,7 @@ class Colors:
     ALICE = '\033[91;1m'
     BOB = '\033[94;1m'
     EVE = '\033[35;1m'
+    MESSAGE = '\033[92;1m'
     RED = '\033[91m'
     GREEN = '\033[92m'
     YELLOW = '\033[93m'
