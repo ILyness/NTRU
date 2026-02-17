@@ -6,3 +6,4 @@ docs/source/
 .vscode
 *.pytest_cache
 __pycache__
+constants.py

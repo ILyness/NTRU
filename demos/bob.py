@@ -10,12 +10,11 @@ from ntru import NTRU
 from ntru_pipeline import encryptMessage, qnaryBlockToCoeffs
 from polymod import ConvolutionPoly
 from terminal_utils import Loader, Colors, slow_print, prettify_polynomial
+from constants import *
 
 N, p, q, d = 17, 3, 101, 5
 ntruencrypt = NTRU(N, p, q, d)
 
-SERVER_IP = "10.133.14.133"
-PORT = 65432
 WAIT_TIME = 1
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -24,7 +23,7 @@ client.connect((SERVER_IP, PORT))
 while True:
     client.recv(128)
     print("\033[H\033[J", end="")
-    
+
     client_name = Colors.BOB + input("What is your name? ") + Colors.RESET
     client.sendall(client_name.encode('utf-8'))
     host_name = client.recv(128).decode('utf-8')

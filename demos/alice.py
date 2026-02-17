@@ -9,12 +9,12 @@ sys.path.append(parent_dir)
 from ntru import NTRU
 from ntru_pipeline import decryptMessage, qnaryCoeffsToBlock
 from terminal_utils import Loader, Colors, slow_print, prettify_polynomial
+from constants import *
 
 N, p, q, d = 17, 3, 101, 5
 ntruencrypt = NTRU(N, p, q, d)
 
 HOST = '0.0.0.0'  
-PORT = 65432  
 WAIT_TIME = 1    
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
