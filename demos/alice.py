@@ -6,7 +6,7 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(parent_dir)
 
 from ntru import NTRU
-from ntru_pipeline import decryptMessage
+from ntru_pipeline import decryptMessage, qnaryCoeffsToBlock
 
 ntruencrypt = NTRU(13, 3, 101, 5)
 f_coeffs = [-1, 1, 0, -1, 1, -1, 1, 1, 1, -1, 1, 0, -1]
@@ -21,6 +21,7 @@ server.bind((HOST, PORT))
 server.listen()
 
 conn, addr = server.accept()
+conn.sendall(qnaryCoeffsToBlock(ntruencrypt.h))
 
 while True:
     data = conn.recv(4096)
