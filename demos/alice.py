@@ -56,5 +56,5 @@ while True:
     slow_print("However, you can use your private keys to decrypt the message. The decrypted result is:")
     plaintext = decryptMessage(ciphertext, ntruencrypt)
     slow_print(plaintext)
-
-    time.sleep(5)
+    slow_print("Demo completed. Press any key to clear.")
+    input()
