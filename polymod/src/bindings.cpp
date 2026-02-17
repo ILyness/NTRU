@@ -47,6 +47,8 @@ PYBIND11_MODULE(polymod, m) {
 
         * **Addition (+):** Performs addition of coefficents modulo `q`.
         * **Multiplication (*):** Performs standard convolution polynomial multiplication with respect to rank ``N``.
+        
+        Operators are for both other convolution polynomials and integer scalars.
 
         Examples
         --------
@@ -57,10 +59,11 @@ PYBIND11_MODULE(polymod, m) {
         .def(py::init([](std::optional<int> rank, 
                               std::optional<int> modulus, 
                               std::optional<std::vector<int>> coeffs,
-                              std::optional<std::string> equation) {
+                              std::optional<std::string> equation,
+                              std::optional<std::string> serialization) {
             
-            if (coeffs.has_value() && equation.has_value()) {
-                throw py::value_error("Cannot provided both coefficients and equation.");
+            if (coeffs.has_value() + equation.has_value() + serialization.has_value() > 1) {
+                throw py::value_error("Can only provide one of coefficients, equation ot serialization.");
             }
 
             int N = (rank.has_value()) ? *rank : 10;
@@ -69,12 +72,21 @@ PYBIND11_MODULE(polymod, m) {
             if (coeffs.has_value()) vals = *coeffs;
             std::string eq;
             if (equation.has_value()) eq = *equation;
-
+            std::string ser;
+            std::vector<unsigned char> bytes;
+            if (serialization.has_value()) {
+                ser = *serialization;
+                bytes.resize(ser.size());
+                for (size_t i=0; i<bytes.size(); i++) bytes[i] = ser[i];
+            }
+            if (!rank.has_value()) return new ConvolutionPoly();
             if (modulus.has_value()) {
                 if (equation.has_value()) {
                     return new ConvolutionPoly(N, q, eq);
                 } else if (coeffs.has_value()) {
                     return new ConvolutionPoly(N, q, vals);
+                } else if (serialization.has_value()) {
+                    return new ConvolutionPoly(N, q, bytes);
                 } else {
                     return new ConvolutionPoly(N, q);
                 }
@@ -82,13 +94,14 @@ PYBIND11_MODULE(polymod, m) {
                 if (coeffs.has_value()) {
                     return new ConvolutionPoly(N, q, vals);
                 }
-                return new ConvolutionPoly(10);
+                return new ConvolutionPoly(N);
             }                   
         }),
         py::arg("rank") = py::none(),
         py::arg("modulus") = py::none(),
         py::arg("coeffs") = py::none(),
-        py::arg("equation") = py::none()
+        py::arg("equation") = py::none(),
+        py::arg("serialization") = py::none()
         )
         .def_property_readonly("coeffs", &ConvolutionPoly::get_coeffs)
         .def_property_readonly("N", &ConvolutionPoly::get_N)
@@ -137,13 +150,14 @@ PYBIND11_MODULE(polymod, m) {
             ConvolutionPoly
                 The inverse of the polynomial, if it exists. None otherwise.
             )pbdoc")
-        .def("scalarMultiply", &ConvolutionPoly::scalarMultiply, R"pbdoc(
-            Multiply the ConvolutionPoly by a scalar
+        .def("serialize", &ConvolutionPoly::serialize, R"pbdoc(
+            Generate a serialization representing the polynomial. Only the coefficents
+            are stored, so the rank and modulus must be known.
 
             Returns
             -------
-            ConvolutionPoly
-                The new ConvolutionPoly
+            str
+                A string representing the bytes of the serialization.
             )pbdoc")
         .def(py::self + py::self)
         .def(py::self * py::self)

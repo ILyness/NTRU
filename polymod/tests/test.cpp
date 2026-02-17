@@ -93,7 +93,7 @@ int main() {
 
 
     std::cout << "Testing inverses..." << std::endl;
-    ConvolutionPoly f = ConvolutionPoly(11, 73, "x^10+x^8-x^3+x^2-1");
+    ConvolutionPoly f = ConvolutionPoly(11, 41, Generator::SAMPLE_IID);
     std::cout << "f: " << f.toString() << std::endl;
     std::cout << "f.inverse(): " << f.inverse().toString() << std::endl;
     f.setModulus(64);
