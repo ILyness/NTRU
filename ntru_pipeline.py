@@ -57,12 +57,21 @@ def blockToBinaryCoeffs(block, N):
     return padValues(coeffs, [0], N)
 
 
+def coefToCharNum(coef):
+    if coef <= 93: return coef + 33
+    return coef + 67
+
+def charNumToCoef(char_num):
+    if char_num >= 160: return char_num - 67
+    return char_num - 33
+
 def qnaryCoeffsToBlock(coeffs, q):
-    return ''.join([chr(c % q) for c in coeffs])
+    return ''.join([chr(coefToCharNum(c % q)) for c in coeffs])
+    
 
 
 def qnaryBlockToCoeffs(block):
-    return [ord(char) for char in block]
+    return [charNumToCoef(ord(char)) for char in block]
 
 
 def main():
@@ -70,10 +79,10 @@ def main():
     ntru = NTRU(N, p, q, d)
     h_coeffs = ntru.createRandomKeys()
     h_str = qnaryCoeffsToBlock(h_coeffs, q)
-    print(repr(h_str)[1:-1])
+    print(h_str)
 
-    ciphertext = encryptMessage('catdogdjfkj123123', N, p, q, d, h_str)
-    print(repr(ciphertext)[1:-1])
+    ciphertext, _, _, _ = encryptMessage('catdogdjfkj123123', N, p, q, d, h_str)
+    print(ciphertext)
     plaintext = decryptMessage(ciphertext, ntru)
     print(plaintext)
 

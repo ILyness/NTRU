@@ -43,7 +43,7 @@ while True:
     slow_print(f"\n{Colors.BOLD}h{Colors.RESET} = {prettify_polynomial(ntruencrypt.h.__str__())}\n", delay=0.02)
     h_str = qnaryCoeffsToBlock(ntruencrypt.h.coeffs, q)
     slow_print("We need to turn your public key into a message we can send. This message is:")
-    slow_print(f"\n{Colors.MESSAGE}{repr(h_str)[1:-1]}{Colors.RESET}\n")
+    slow_print(f"\n{Colors.MESSAGE}{h_str}{Colors.RESET}\n")
     slow_print(f"Sending {client_name} your public key.")
     conn.sendall(h_str.encode('utf-8'))
 
@@ -51,7 +51,7 @@ while True:
     with Loader(desc=f"Waiting for {client_name}'s message...", end=f"{client_name} has sent you their ciphertext."):
         data = conn.recv(4096)
     ciphertext = data.decode('utf-8')
-    slow_print(f"{Colors.BOLD}Ciphertext{Colors.RESET}: {Colors.MESSAGE}{repr(ciphertext)[1:-1]}{Colors.RESET}", delay=0.02)
+    slow_print(f"{Colors.BOLD}Ciphertext{Colors.RESET}: {Colors.MESSAGE}{ciphertext}{Colors.RESET}", delay=0.02)
     slow_print(f"{Colors.EVE}Eve{Colors.RESET} can see your public key and {client_name}'s ciphertext, but she won't be able to retrieve m.")
     slow_print("However, you can use your private keys to decrypt the message. The decrypted result is:")
     plaintext = decryptMessage(ciphertext, ntruencrypt)
