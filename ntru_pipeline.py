@@ -14,10 +14,13 @@ def encryptMessage(plaintext, N, p, q, d, h_str):
 
     plaintext = padValues(plaintext, '\0', block_size)
     ciphertext = ''
-
+    r = None
     for block_plaintext in batched(plaintext, block_size):
         block_plaincoeffs = blockToBinaryCoeffs(block_plaintext, N)
-        block_ciphercoeffs, m, r, e = encryptFromH(N, p, q, d, h_coeffs, block_plaincoeffs)
+        if not r:
+            block_ciphercoeffs, m, r, e = encryptFromH(N, p, q, d, h_coeffs, block_plaincoeffs)
+        else:
+            block_ciphercoeffs, _, _, _ = encryptFromH(N, p, q, d, h_coeffs, block_plaincoeffs)
         ciphertext += qnaryCoeffsToBlock(block_ciphercoeffs, q)
     
     return (ciphertext, m, r, e)
