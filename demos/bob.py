@@ -37,7 +37,7 @@ while True:
     slow_print(f"\n{Colors.MESSAGE}{h_str}{Colors.RESET}\n")
     slow_print("We need to retrieve the original public key from the message. The key is:")
     h = ConvolutionPoly(rank=N, modulus=q, coeffs=qnaryBlockToCoeffs(h_str)) 
-    slow_print(f"\n{Colors.BOLD}h{Colors.RESET} = {prettify_polynomial(h.__str__())}\n", delay=0.02)
+    slow_print(f"\n{Colors.BOLD}h{Colors.RESET} = {prettify_polynomial(h.__str__())}\n", delay=0.01)
     slow_print(f"Now that we have {host_name}'s public key, we can send them messages.")
     
     bad_message = True
@@ -52,13 +52,13 @@ while True:
             slow_print("Sorry, your message seems really cool, but it makes me sad, so I'm not going to encrypt it. :(")
 
     slow_print("We need to break your message into blocks, and assign each bock a polynomial. The first polynomial is: ")
-    slow_print(f"\n{Colors.BOLD}m{Colors.RESET} = {prettify_polynomial(m.__str__())}\n", delay=0.02)
+    slow_print(f"\n{Colors.BOLD}m{Colors.RESET} = {prettify_polynomial(m.__str__())}\n", delay=0.01)
     slow_print("We now generate a random polynomial r:")
-    slow_print(f"\n{Colors.BOLD}r{Colors.RESET} = {prettify_polynomial(r.__str__())}\n", delay=0.02)
+    slow_print(f"\n{Colors.BOLD}r{Colors.RESET} = {prettify_polynomial(r.__str__())}\n", delay=0.01)
     slow_print("We now can generate your final polynomial e for the first block:")
-    slow_print(f"\n{Colors.BOLD}e{Colors.RESET} = {prettify_polynomial(e.__str__())}\n", delay=0.02)
+    slow_print(f"\n{Colors.BOLD}e{Colors.RESET} = {prettify_polynomial(e.__str__())}\n", delay=0.01)
     slow_print("Like before, we can convert every e to a message and combine them to get your final ciphertext.")
-    slow_print(f"\n{Colors.BOLD}Ciphertext{Colors.RESET}: {Colors.MESSAGE}{ciphertext}{Colors.RESET}\n", delay=0.02)
     slow_print(f"{Colors.EVE}Eve{Colors.RESET} can see {host_name}'s public key and your ciphertext, but she won't be able to retrieve m.")
+    slow_print(f"\n{Colors.BOLD}Ciphertext{Colors.RESET}: {Colors.MESSAGE}{ciphertext}{Colors.RESET}\n", delay=0.01)
     slow_print(f"Sending {host_name} your ciphertext.")
     client.sendall(ciphertext.encode('utf-8'))

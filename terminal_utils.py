@@ -23,7 +23,7 @@ def prettify_polynomial(poly_str):
         res.replace(key, val)
     return res
 
-def slow_print(text, delay=0.07, final_delay=1, end=None):
+def slow_print(text, delay=0.05, final_delay=1, end=None):
     ansi_escape = re.compile(r'\x1b\[[0-9;]*m')
     i = 0
     while i < len(text):
