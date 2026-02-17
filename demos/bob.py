@@ -22,6 +22,9 @@ client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((SERVER_IP, PORT))
 
 while True:
+    client.recv(128)
+    print("\033[H\033[J", end="")
+    
     client_name = Colors.BOB + input("What is your name? ") + Colors.RESET
     client.sendall(client_name.encode('utf-8'))
     host_name = client.recv(128).decode('utf-8')
@@ -52,6 +55,3 @@ while True:
     slow_print(f"{Colors.EVE}Eve{Colors.RESET} can see {host_name}'s public key and your ciphertext, but she won't be able to retrieve m.")
     slow_print(f"Sending {host_name} your ciphertext.")
     client.sendall(ciphertext.encode('utf-8'))
-
-    client.recv(128)
-    print("\033[H\033[J", end="")
