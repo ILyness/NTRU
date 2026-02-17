@@ -52,7 +52,7 @@ class Colors:
     MAGENTA = '\033[35m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-    RESET = '\033[0m' # Resets the color/style
+    RESET = '\033[0m'
 
 class Loader:
     def __init__(self, desc="Loading...", end="Done!", timeout=0.1):
