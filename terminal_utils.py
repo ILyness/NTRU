@@ -2,8 +2,56 @@ import threading
 import time
 import sys
 import itertools
+import re
 
-from ntru_pipeline import slow_print
+def prettify_polynomial(poly_str):
+    superscript_map = {
+        "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
+        "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹",
+        "-": "⁻" 
+    }
+    coeff_map = {
+        "0": "𝟢", "1": "𝟣", "2": "𝟤", "3": "𝟥", "4": "𝟦",
+        "5": "𝟧", "6": "𝟨", "7": "𝟩", "8": "𝟪", "9": "𝟫"
+    }
+    def replace_exponent(match):
+        exponent = match.group(1)
+        return "".join([superscript_map.get(char, char) for char in exponent])
+
+    res = re.sub(r'\^(-?\d+)', replace_exponent, poly_str).replace('x', '𝑥')
+    for (key, val) in coeff_map.items():
+        res.replace(key, val)
+    return res
+
+def slow_print(text, delay=0.07, final_delay=1, end=None):
+    ansi_escape = re.compile(r'\x1b\[[0-9;]*m')
+    i = 0
+    while i < len(text):
+        match = ansi_escape.match(text, i)
+        if match:
+            sys.stdout.write(match.group(0))
+            sys.stdout.flush()
+            i = match.end(0)
+        else:
+            sys.stdout.write(text[i])
+            sys.stdout.flush()
+            time.sleep(delay)
+            i += 1
+    print(end=end) 
+    time.sleep(final_delay)
+
+class Colors:
+    ALICE = '\033[91;1m'
+    BOB = '\033[94;1m'
+    EVE = '\033[35;1m'
+    RED = '\033[91m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    MAGENTA = '\033[35m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    RESET = '\033[0m' # Resets the color/style
 
 class Loader:
     def __init__(self, desc="Loading...", end="Done!", timeout=0.1):
